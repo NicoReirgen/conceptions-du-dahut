@@ -19,7 +19,7 @@
 #
 # À régénérer après tout ajout d'original :
 #
-#   find assets-source -type f -exec shasum -a 256 {} + | sort -k2 >> assets-source.sha256
+#   npm run manifeste:assets
 #
 be93ed7d80abdd8fc8e0d8fe7448f170a9ef0e5f735c41d7472a715d0a2b48cd  assets-source/images/orion/equipement_exterieur/auvent_180-bas_de_caisse-galerie_dahut.jpg
 8ed0b379eb7a3f698c76b850a56fa25c9fbf52734f2035d235df98056ce56978  assets-source/images/orion/equipement_exterieur/auvent_180-bas_de_caisse-toit_relevable.jpg

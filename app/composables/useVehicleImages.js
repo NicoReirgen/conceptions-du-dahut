@@ -100,105 +100,66 @@ export const imageSystem = {
         return this.getBasePath(vehicleId) + `${vehicleId}-base.jpg`;
     },
     
+    /** Les champs retenus pour l'image, dans l'ordre du formulaire. */
+    champsRetenus(selectedOptions, vehicleSteps) {
+        if (!selectedOptions || !vehicleSteps) return [];
+
+        return this.extractValidatedFields(selectedOptions, this.detectImageFields(vehicleSteps));
+    },
+
     /**
      * CONSTRUCTION DE L'URL D'IMAGE
      */
     buildImageUrl(selectedOptions, vehicleId, vehicleSteps) {
-        if (!selectedOptions || !vehicleSteps) {
-            return this.getBaseImage(vehicleId);
-        }
-        
-        const imageFields = this.detectImageFields(vehicleSteps);
-        const validatedFields = this.extractValidatedFields(selectedOptions, imageFields);
-        
-        if (validatedFields.length === 0) {
-            return this.getBaseImage(vehicleId);
-        }
-        
-        // Séparer les champs indépendants des champs contextuels
-        const independentFields = validatedFields.filter(field => field.field.independant === true);
-        const contextualFields = validatedFields.filter(field => field.field.independant !== true);
-        const allContextualImageFields = imageFields.filter(field => field.field.independant !== true);
-        
-        // Si on a un champ indépendant, utiliser le format simple : /{modele}/{nom-option}/{option(s)-choisie(s)}
-        if (independentFields.length > 0) {
-            return this.buildIndependentUrl(independentFields[0], vehicleId);
-        }
-        
-        // Vérifier s'il reste des champs contextuels valides après filtrage disableImageHandling
-        if (contextualFields.length === 0) {
-            return this.getBaseImage(vehicleId);
-        }
-        
-        // Sinon, utiliser la logique hiérarchique normale pour les champs contextuels
-        return this.buildContextualUrl(contextualFields, vehicleId, allContextualImageFields);
+        return this.cheminPour(this.champsRetenus(selectedOptions, vehicleSteps), vehicleId);
     },
 
-    /**
-     * CONSTRUIRE UNE URL POUR LES CHAMPS INDÉPENDANTS
-     * Format: /{modele}/{nom-option}/{option(s)-choisie(s)}.jpg
-     */
-    buildIndependentUrl(field, vehicleId) {
-        const urlParts = [this.getBasePath(vehicleId).slice(0, -1)]; // Base : /assets/images/orion
-        
-        const folderName = this.getFolderName(field.key);
-        const selectedValues = this.getSelectedValues(field.value, field.type, field);
-        
-        if (folderName && selectedValues) {
-            urlParts.push(folderName);
-            urlParts.push(selectedValues);
+    /*
+       Le chemin que désignent des champs retenus.
+
+       Un champ déclaré indépendant ne s'imbrique pas : son image existe seule,
+       quelles que soient les autres sélections. Il l'emporte donc sur le reste.
+    */
+    cheminPour(champs, vehicleId) {
+        const independant = champs.find(champ => champ.field?.independant === true);
+
+        if (independant) {
+            return this.cheminDepuis([independant], vehicleId);
         }
-        
-        const finalUrl = urlParts.join('/') + '.jpg';
-        this.log(`URL indépendante générée: ${finalUrl}`);
-        
-        return finalUrl;
+
+        const contextuels = champs.filter(champ => champ.field?.independant !== true);
+
+        return contextuels.length > 0
+            ? this.cheminDepuis(contextuels, vehicleId)
+            : this.getBaseImage(vehicleId);
     },
 
-    /**
-     * CONSTRUIRE UNE URL POUR LES CHAMPS CONTEXTUELS
-     * Structure hiérarchique basée sur l'ordre des champs sélectionnés
-     */
-    buildContextualUrl(contextualFields, vehicleId, allContextualImageFields) {
-        const urlParts = [this.getBasePath(vehicleId).slice(0, -1)]; // Base : /assets/images/orion
-        
-        if (contextualFields.length === 0) {
-            return this.getBaseImage(vehicleId);
-        }
-        
-        // Si un seul champ est SÉLECTIONNÉ, utiliser la structure simple
-        if (contextualFields.length === 1) {
-            const field = contextualFields[0];
-            const folderName = this.getFolderName(field.key);
-            const selectedValues = this.getSelectedValues(field.value, field.type, field);
-            
-            if (folderName && selectedValues) {
-                urlParts.push(folderName);
-                urlParts.push(selectedValues);
+    /*
+       Composition d'un chemin : la dernière sélection donne le dossier
+       principal, les précédentes forment les sous-dossiers imbriqués. D'où le
+       parcours à l'envers.
+
+       Cette boucle était écrite cinq fois — une par branche de l'URL
+       indépendante, de l'URL contextuelle et des replis. Quatre d'entre elles
+       distinguaient « un seul champ » de « plusieurs », distinction sans objet :
+       renverser une liste d'un élément la laisse telle quelle.
+    */
+    cheminDepuis(champs, vehicleId) {
+        const segments = [this.getBasePath(vehicleId).slice(0, -1)];
+
+        for (const champ of [...champs].reverse()) {
+            const dossier = this.getFolderName(champ.key);
+            const valeurs = this.getSelectedValues(champ.value, champ.type, champ);
+
+            if (dossier && valeurs) {
+                segments.push(dossier, valeurs);
             }
-        } else {
-            // Plusieurs champs SÉLECTIONNÉS : structure hiérarchique
-            // Construire le chemin en utilisant SEULEMENT les champs sélectionnés
-            // dans l'ordre inverse (le dernier sélectionné devient le dossier principal)
-            
-            // Trier les champs par ordre de sélection (dernier en premier)
-            const sortedFields = [...contextualFields].reverse();
-            
-            sortedFields.forEach((field, index) => {
-                const folderName = this.getFolderName(field.key);
-                const selectedValues = this.getSelectedValues(field.value, field.type, field);
-                
-                if (folderName && selectedValues) {
-                    urlParts.push(folderName);
-                    urlParts.push(selectedValues);
-                }
-            });
         }
-        
-        const finalUrl = urlParts.join('/') + '.jpg';
-        this.log(`URL contextuelle complète générée: ${finalUrl}`);
-        
-        return finalUrl;
+
+        const chemin = segments.join('/') + '.jpg';
+        this.log(`URL générée: ${chemin}`);
+
+        return chemin;
     },
     
     /**
@@ -626,105 +587,43 @@ export const imageSystem = {
         this.log(`Image validée sauvegardée: ${imageUrl} (étape ${stepIndex})`);
     },
     
-    /**
-     * OBTENIR LE MEILLEUR FALLBACK HIÉRARCHIQUE
-     */
-    getBestFallback(selectedOptions, vehicleId, vehicleSteps) {
-        const imageFields = this.detectImageFields(vehicleSteps);
-        const validatedFields = this.extractValidatedFields(selectedOptions, imageFields);
-        
-        // Générer des URLs de fallback en supprimant progressivement les options les plus récentes
-        const fallbackUrls = this.generateFallbackUrls(validatedFields, vehicleId);
-        
-        this.log(`URLs de fallback générées: ${fallbackUrls.join(', ')}`);
-        
-        // Retourner la première URL de fallback (la plus proche de la configuration actuelle)
-        if (fallbackUrls.length > 0) {
-            return fallbackUrls[0];
-        }
-        
-        // Fallback ultime : image de base
-        return this.getBaseImage(vehicleId);
-    },
+    /*
+       Les replis, du plus proche de la configuration au plus général : on
+       retire les sélections une à une, de la plus récente à la première, et
+       l'image du véhicule ferme la liste.
 
-    /**
-     * GÉNÉRER LES URLs DE FALLBACK HIÉRARCHIQUES
-     */
+       Les doublons sont écartés — la liste se terminait par deux fois l'image
+       de base, que le navigateur redemandait alors deux fois.
+    */
     generateFallbackUrls(validatedFields, vehicleId) {
-        const fallbackUrls = [];
-        
-        // Générer des URLs en supprimant progressivement les options les plus récentes
+        const replis = [];
+
         for (let i = validatedFields.length - 1; i >= 0; i--) {
-            const fieldsSubset = validatedFields.slice(0, i);
-            
-            if (fieldsSubset.length === 0) {
-                // Pas de champs restants, utiliser l'image de base
-                fallbackUrls.push(this.getBaseImage(vehicleId));
-                continue;
-            }
-            
-            const urlParts = [this.getBasePath(vehicleId).slice(0, -1)]; // Base : /orion
-            
-            if (fieldsSubset.length === 1) {
-                // Une seule sélection : structure simple
-                const field = fieldsSubset[0];
-                const folderName = this.getFolderName(field.key);
-                const selectedValues = this.getSelectedValues(field.value, field.type, field);
-                
-                if (folderName && selectedValues) {
-                    urlParts.push(folderName);
-                    urlParts.push(selectedValues);
-                }
-            } else {
-                // Plusieurs sélections : structure hiérarchique inversée
-                const lastField = fieldsSubset[fieldsSubset.length - 1];
-                const previousFields = fieldsSubset.slice(0, -1);
-                
-                // 1. Dossier principal = dernière sélection
-                const lastFolderName = this.getFolderName(lastField.key);
-                const lastSelectedValues = this.getSelectedValues(lastField.value, lastField.type, lastField);
-                
-                if (lastFolderName && lastSelectedValues) {
-                    urlParts.push(lastFolderName);
-                    urlParts.push(lastSelectedValues);
-                }
-                
-                // 2. Sous-dossiers = sélections précédentes (dans l'ordre inverse)
-                previousFields.reverse().forEach(field => {
-                    const folderName = this.getFolderName(field.key);
-                    const selectedValues = this.getSelectedValues(field.value, field.type, field);
-                    
-                    if (folderName && selectedValues) {
-                        urlParts.push(folderName);
-                        urlParts.push(selectedValues);
-                    }
-                });
-            }
-            
-            const fallbackUrl = urlParts.join('/') + '.jpg';
-            fallbackUrls.push(fallbackUrl);
+            const restants = validatedFields.slice(0, i);
+
+            replis.push(restants.length > 0
+                ? this.cheminDepuis(restants, vehicleId)
+                : this.getBaseImage(vehicleId));
         }
-        
-        // Ajouter l'image de base comme fallback ultime
-        fallbackUrls.push(this.getBaseImage(vehicleId));
-        
-        return fallbackUrls;
+
+        replis.push(this.getBaseImage(vehicleId));
+
+        return [...new Set(replis)];
     },
     
     /**
      * VÉRIFIER L'EXISTENCE D'UNE IMAGE AVEC FALLBACK PROGRESSIF
      */
     async checkImageExistsWithFallback(selectedOptions, vehicleId, vehicleSteps) {
-        const imageFields = this.detectImageFields(vehicleSteps);
-        const validatedFields = this.extractValidatedFields(selectedOptions, imageFields);
-        
-        // Générer la liste complète des URLs à tester (URL principale + fallbacks)
-        const targetUrl = this.buildImageUrl(selectedOptions, vehicleId, vehicleSteps);
-        const fallbackUrls = this.generateFallbackUrls(validatedFields, vehicleId);
-        
+        // Une seule détection des champs : elle servait deux fois par appel.
+        const retenus = this.champsRetenus(selectedOptions, vehicleSteps);
+
+        const targetUrl = this.cheminPour(retenus, vehicleId);
+        const fallbackUrls = this.generateFallbackUrls(retenus, vehicleId);
+
         // Créer la liste complète des URLs à tester (principale en premier)
         const urlsToTest = [targetUrl, ...fallbackUrls];
-        
+
         this.log(`Test de ${urlsToTest.length} URLs: ${urlsToTest.join(', ')}`);
         
         // Tester chaque URL jusqu'à en trouver une qui existe
@@ -742,46 +641,28 @@ export const imageSystem = {
         return baseImage;
     },
     
-    /**
-     * VÉRIFIER L'EXISTENCE D'UNE IMAGE
-     */
+    /*
+       Existence d'une image, éprouvée en la chargeant.
+
+       Hors navigateur — rendu serveur, prérendu — rien ne permet de le savoir,
+       et on ne le prétend pas : la recherche se termine alors sur l'image du
+       véhicule, que le client affinera après montage.
+
+       Ce cas était traité par une simulation qui répondait « vrai » pour les
+       chemins contenant `mobilier`, « faux » pour deux coloris nommés en dur,
+       et tirait le reste à pile ou face — `Math.random()` dans le rendu d'une
+       page prégénérée.
+    */
     async checkImageExists(imageUrl) {
+        if (typeof window === 'undefined' || !window.Image) return false;
+
         return new Promise((resolve) => {
-            if (typeof window !== 'undefined' && window.Image) {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = imageUrl;
-                setTimeout(() => resolve(false), 3000);
-            } else {
-                // En test/Node.js, simuler selon des patterns
-                const exists = this.simulateImageExists(imageUrl);
-                resolve(exists);
-            }
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = imageUrl;
+            setTimeout(() => resolve(false), 3000);
         });
-    },
-    
-    /**
-     * SIMULER L'EXISTENCE D'IMAGES (pour tests)
-     */
-    simulateImageExists(imageUrl) {
-        // Simuler que les images de base existent toujours
-        if (imageUrl.includes('-base.jpg')) {
-            return true;
-        }
-        
-        // Simuler que les images avec finitions de base (gris galet, etc.) n'existent pas
-        if (imageUrl.includes('gris_galet') || imageUrl.includes('stratifie_gris_galet')) {
-            return false;
-        }
-        
-        // Simuler que les autres images existent la plupart du temps
-        if (imageUrl.includes('mobilier/') || imageUrl.includes('tiroirs') || imageUrl.includes('rangement')) {
-            return true;
-        }
-        
-        // Par défaut, 70% de chance que les autres images existent
-        return Math.random() > 0.3;
     },
     
     /**
@@ -806,15 +687,15 @@ export const imageSystem = {
      * VERSION SYNCHRONE AVEC FALLBACK HIÉRARCHIQUE
      */
     getVehicleImageSync(selectedOptions, vehicleId, vehicleSteps, currentStepIndex = 0) {
-        // Construire l'URL principale
-        const targetUrl = this.buildImageUrl(selectedOptions, vehicleId, vehicleSteps);
-        
-        // En mode synchrone, retourner l'URL calculée mais aussi préparer les fallbacks
-        // pour que le composant puisse les utiliser si l'image principale ne charge pas
-        const imageFields = this.detectImageFields(vehicleSteps);
-        const validatedFields = this.extractValidatedFields(selectedOptions, imageFields);
-        const fallbackUrls = this.generateFallbackUrls(validatedFields, vehicleId);
-        
+        // Une seule détection des champs, d'où sortent l'URL et ses replis : le
+        // parcours du catalogue était refait deux fois à chaque changement d'option.
+        const retenus = this.champsRetenus(selectedOptions, vehicleSteps);
+
+        const targetUrl = this.cheminPour(retenus, vehicleId);
+
+        // Les replis servent au composant si l'image principale ne charge pas.
+        const fallbackUrls = this.generateFallbackUrls(retenus, vehicleId);
+
         // Sauvegarder l'URL et ses fallbacks pour référence future
         this.saveValidatedImage(targetUrl, currentStepIndex);
         this.lastGeneratedFallbacks = fallbackUrls;
@@ -908,30 +789,6 @@ export const imageSystem = {
         
         if (!isImageEnabled) {
             this.log(`Sous-option ${subOptionKey} de ${mainOptionKey} ignorée pour les images (disableImageHandling: true)`);
-        }
-        
-        return isImageEnabled;
-    },
-    
-    /**
-     * VÉRIFIER SI UNE OPTION DEEP EST ACTIVÉE POUR LES IMAGES
-     */
-    isDeepOptionImageEnabled(mainOptionKey, deepOptionKey, fieldInfo) {
-        if (!fieldInfo || !fieldInfo.field || !fieldInfo.field.options) {
-            return true; // Si pas d'info sur les options, considérer comme activé
-        }
-        
-        const mainOption = fieldInfo.field.options.find(opt => opt.key === mainOptionKey);
-        if (!mainOption || !mainOption.deepOptions) return true;
-        
-        const deepOption = mainOption.deepOptions.find(opt => opt.key === deepOptionKey);
-        if (!deepOption) return true; // Si deep option non trouvée, la garder par sécurité
-        
-        // Retourner false seulement si disableImageHandling est explicitement true
-        const isImageEnabled = deepOption.disableImageHandling !== true;
-        
-        if (!isImageEnabled) {
-            this.log(`Option deep ${deepOptionKey} de ${mainOptionKey} ignorée pour les images (disableImageHandling: true)`);
         }
         
         return isImageEnabled;

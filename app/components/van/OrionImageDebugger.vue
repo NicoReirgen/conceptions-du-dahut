@@ -68,11 +68,7 @@ const props = defineProps({
 });
 
 // Utiliser le nouveau système d'images universel
-const { 
-    getVehicleImageSync,
-    debugState,
-    clearHistory
-} = useVehicleImages();
+const { getVehicleImageSync, getLastFallbacks } = useVehicleImages();
 
 // Ne montrer le debugger qu'en mode développement
 const showDebugger = ref(import.meta.env.DEV);
@@ -107,16 +103,20 @@ const formatConfigValue = (value) => {
     return String(value);
 };
 
-// Utiliser le nouveau système pour obtenir les informations de debug
+/*
+   L'état courant, tel que le panneau le présente.
+
+   Ce calcul appelait `debugState`, dont l'unique effet était d'écrire dans la
+   console — un effet de bord dans un `computed`, réexécuté à chaque rendu. Le
+   panneau affiche déjà tout ce que cette trace répétait.
+*/
 const systemDebugInfo = computed(() => {
     if (!props.selectedVehicle) {
         return null;
     }
-    
-    // Utiliser debugState du nouveau système
+
     const vehicleId = props.selectedVehicle.id || 'orion';
-    debugState(props.selectedOptions, vehicleId, props.vehicleSteps);
-    
+
     return {
         vehicleId,
         selectedOptions: props.selectedOptions,
@@ -167,22 +167,19 @@ const currentImageName = computed(() => {
     return imageUrl;
 });
 
-// Chaîne de fallback depuis le nouveau système
-const fallbackChain = computed(() => {
-    if (!props.selectedVehicle) {
-        return ['/orion/orion-base.jpg'];
-    }
-    
-    // Retourner l'URL complète pour le débogage
-    const currentImage = currentImageName.value;
-    return [currentImage];
-});
+/*
+   La chaîne de repli réellement préparée par le système.
 
-// Log les changements (synchronisé avec le système principal)
-watch(currentImageName, (newName, oldName) => {
-    if (newName !== oldName) {
-    }
-}, { immediate: true });
+   Ce calcul ne rendait que l'image courante, dans un tableau d'un élément —
+   et le gabarit n'affiche la section qu'à partir de deux. Elle ne s'est donc
+   jamais montrée. C'est pourtant l'information utile maintenant que l'aperçu
+   se rabat sur cette liste quand un fichier manque.
+*/
+const fallbackChain = computed(() => {
+    if (!props.selectedVehicle) return [];
+
+    return [currentImageName.value, ...getLastFallbacks().filter((url) => url !== currentImageName.value)];
+});
 </script>
 
 <style scoped>

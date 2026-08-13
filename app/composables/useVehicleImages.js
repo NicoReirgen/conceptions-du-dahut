@@ -23,12 +23,6 @@ les sélections précédentes forment des sous-dossiers imbriqués.
 
 export const imageSystem = {
     
-    // Mode debug
-    debugMode: false,
-    
-    // Historique des images validées (fallbacks progressifs)
-    validatedImages: [],
-    
     // Derniers fallbacks générés (pour la version synchrone)
     lastGeneratedFallbacks: [],
     
@@ -89,7 +83,6 @@ export const imageSystem = {
             }
         });
         
-        this.log(`${imageFields.length} champs image détectés:`, imageFields.map(f => f.key));
         return imageFields;
     },
     
@@ -157,7 +150,6 @@ export const imageSystem = {
         }
 
         const chemin = segments.join('/') + '.jpg';
-        this.log(`URL générée: ${chemin}`);
 
         return chemin;
     },
@@ -184,7 +176,6 @@ export const imageSystem = {
                         field: fieldInfo.field // Ajouter la référence complète au champ
                     });
                 } else {
-                    this.log(`Champ ${fieldInfo.key} ignoré car toutes ses options ont disableImageHandling: true`);
                 }
             }
         });
@@ -263,11 +254,9 @@ export const imageSystem = {
      */
     extractDeepestOptions(value, fieldInfo) {
         if (fieldInfo.type !== 'deep_multiple' || !value.mainOptions) {
-            this.log(`extractDeepestOptions: type=${fieldInfo.type}, mainOptions=${!!value.mainOptions}`);
             return null;
         }
 
-        this.log(`extractDeepestOptions: Analysing ${value.mainOptions.length} main options:`, value.mainOptions);
         const deepestSelections = [];
 
         // Pour chaque option principale sélectionnée
@@ -276,7 +265,6 @@ export const imageSystem = {
             
             // Vérifier si cette option principale est désactivée pour les images
             if (mainOption && mainOption.disableImageHandling === true) {
-                this.log(`Option principale ${mainOptionKey} ignorée pour les images (disableImageHandling: true)`);
                 return;
             }
             
@@ -301,7 +289,6 @@ export const imageSystem = {
             // Si pas de feuilles trouvées, ne pas inclure l'option intermédiaire
         });
 
-        this.log(`extractDeepestOptions: Résultat final:`, deepestSelections);
         return deepestSelections.length > 0 ? deepestSelections : null;
     },
 
@@ -321,7 +308,6 @@ export const imageSystem = {
 
         for (const optionProfonde of deepOptions) {
             if (optionProfonde.disableImageHandling === true) {
-                this.log(`Deep option ${optionProfonde.key} de ${mainKey} ignorée pour les images (disableImageHandling: true)`);
                 continue;
             }
 
@@ -352,7 +338,6 @@ export const imageSystem = {
 
         const coloris = optionProfonde.options?.find(opt => opt.key === retenu);
         if (coloris?.disableImageHandling === true) {
-            this.log(`Couleur ${retenu} de ${mainKey}.${optionProfonde.key} ignorée pour les images (disableImageHandling: true)`);
             return null;
         }
 
@@ -379,7 +364,6 @@ export const imageSystem = {
         const choisie = optionProfonde.options?.find(opt => opt.key === retenu);
 
         if (choisie?.disableImageHandling === true) {
-            this.log(`Option unique ${retenu} de ${mainKey}.${optionProfonde.key} ignorée pour les images (disableImageHandling: true)`);
             return [];
         }
 
@@ -402,7 +386,6 @@ export const imageSystem = {
 
         for (const optionProfonde of deepOptions) {
             if (optionProfonde.disableImageHandling === true) {
-                this.log(`Sub deep option ${optionProfonde.key} ignorée pour les images (disableImageHandling: true)`);
                 continue;
             }
 
@@ -413,7 +396,6 @@ export const imageSystem = {
 
             const coloris = optionProfonde.options?.find(opt => opt.key === retenu);
             if (coloris?.disableImageHandling === true) {
-                this.log(`Sub couleur ${retenu} ignorée pour les images (disableImageHandling: true)`);
                 continue;
             }
 
@@ -503,18 +485,15 @@ export const imageSystem = {
     */
     valeursDeepMultiple(value, fieldInfo) {
         if (!fieldInfo) {
-            this.log(`Pas d'info sur le champ deep_multiple, pas d'URL générée`);
             return null;
         }
 
         const feuilles = this.extractDeepestOptions(value, fieldInfo);
 
         if (!feuilles || feuilles.length === 0) {
-            this.log(`Aucune option feuille trouvée pour ${fieldInfo.key}, pas d'URL générée`);
             return null;
         }
 
-        this.log(`Options feuilles trouvées pour ${fieldInfo.key}:`, feuilles);
 
         return feuilles.map(v => this.normalizeValue(v)).sort().join('-');
     },
@@ -535,7 +514,6 @@ export const imageSystem = {
             if (!option) return true; // Si option non trouvée, la garder par sécurité
             
             if (option.disableImageHandling === true) {
-                this.log(`Option ${optionKey} ignorée pour les images (disableImageHandling: true)`);
                 return false;
             }
             return true;
@@ -552,7 +530,6 @@ export const imageSystem = {
         if (nonDefaultOptions.length > 0) {
             return nonDefaultOptions;
         } else {
-            this.log(`Aucune option non-par-défaut trouvée, inclusion de l'option par défaut pour maintenir la cohérence`);
             return nonDisabledOptions;
         }
     },
@@ -566,25 +543,6 @@ export const imageSystem = {
         
         // Les clés sont maintenant simples et cohérentes, juste normaliser les espaces
         return value.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-    },
-    
-    /**
-     * ENREGISTRER UNE IMAGE VALIDÉE
-     */
-    saveValidatedImage(imageUrl, stepIndex) {
-        // Ajouter à l'historique des images validées
-        this.validatedImages.push({
-            url: imageUrl,
-            stepIndex: stepIndex,
-            timestamp: Date.now()
-        });
-        
-        // Garder seulement les 10 dernières images
-        if (this.validatedImages.length > 10) {
-            this.validatedImages = this.validatedImages.slice(-10);
-        }
-        
-        this.log(`Image validée sauvegardée: ${imageUrl} (étape ${stepIndex})`);
     },
     
     /*
@@ -641,11 +599,8 @@ export const imageSystem = {
         // Les replis servent au composant si l'image principale ne charge pas.
         const fallbackUrls = this.generateFallbackUrls(retenus, vehicleId);
 
-        // Sauvegarder l'URL et ses fallbacks pour référence future
-        this.saveValidatedImage(targetUrl, currentStepIndex);
         this.lastGeneratedFallbacks = fallbackUrls;
         
-        this.log(`URL synchrone générée: ${targetUrl}, fallbacks préparés: ${fallbackUrls.slice(0, 2).join(', ')}...`);
         
         return targetUrl;
     },
@@ -657,43 +612,6 @@ export const imageSystem = {
         return this.lastGeneratedFallbacks || [];
     },
     
-    /**
-     * NETTOYER L'HISTORIQUE
-     */
-    clearHistory() {
-        this.validatedImages = [];
-        this.log('Historique des images nettoyé');
-    },
-    
-    /**
-     * LOG SIMPLE
-     */
-    log(message, type = 'info') {
-        if (!this.debugMode) return;
-        
-        const emoji = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : type === 'success' ? '✅' : '🎯';
-        console.log(`${emoji} [ImageSystem] ${message}`);
-    },
-    
-    /**
-     * DEBUG - Afficher l'état actuel
-     */
-    debugState(selectedOptions, vehicleId, vehicleSteps) {
-        if (!this.debugMode) return;
-        
-        const imageFields = this.detectImageFields(vehicleSteps);
-        const validatedFields = this.extractValidatedFields(selectedOptions, imageFields);
-        const generatedUrl = this.buildImageUrl(selectedOptions, vehicleId, vehicleSteps);
-        
-        console.group('🚐 DEBUG IMAGE SYSTEM');
-        console.log('🎯 Véhicule:', vehicleId);
-        console.log('🔍 Champs image détectés:', imageFields.map(f => `${f.key} (${f.type})`));
-        console.log('📦 Champs validés:', validatedFields.map(f => `${f.key}: ${JSON.stringify(f.value)}`));
-        console.log('🖼️ URL complète générée:', generatedUrl);
-        console.log('📚 Historique fallbacks:', this.validatedImages.map(img => img.url));
-        console.groupEnd();
-    },
-
     /**
      * VÉRIFIER SI UNE OPTION PRINCIPALE EST ACTIVÉE POUR LES IMAGES
      */
@@ -709,7 +627,6 @@ export const imageSystem = {
         const isImageEnabled = option.disableImageHandling !== true;
         
         if (!isImageEnabled) {
-            this.log(`Option principale ${optionKey} ignorée pour les images (disableImageHandling: true)`);
         }
         
         return isImageEnabled;
@@ -733,7 +650,6 @@ export const imageSystem = {
         const isImageEnabled = subOption.disableImageHandling !== true;
         
         if (!isImageEnabled) {
-            this.log(`Sous-option ${subOptionKey} de ${mainOptionKey} ignorée pour les images (disableImageHandling: true)`);
         }
         
         return isImageEnabled;
@@ -746,9 +662,6 @@ export const useVehicleImages = () => {
     return {
         getVehicleImageSync: imageSystem.getVehicleImageSync.bind(imageSystem),
         getLastFallbacks: imageSystem.getLastFallbacks.bind(imageSystem),
-        repliSuivant: imageSystem.repliSuivant.bind(imageSystem),
-        saveValidatedImage: imageSystem.saveValidatedImage.bind(imageSystem),
-        clearHistory: imageSystem.clearHistory.bind(imageSystem),
-        debugState: imageSystem.debugState.bind(imageSystem)
+        repliSuivant: imageSystem.repliSuivant.bind(imageSystem)
     };
 };

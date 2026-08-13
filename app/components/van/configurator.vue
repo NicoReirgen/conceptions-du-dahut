@@ -368,10 +368,22 @@ const rafraichirApercu = async () => {
     }
 };
 
+/*
+   `deep` — sans quoi l'aperçu ne changeait jamais.
+
+   `selectedOptions` est une référence vers un objet modifié en place :
+   `selectedOptions.value[cle] = valeur`. Vue compare les sources par identité,
+   et l'objet reste le même — l'observateur ne partait donc qu'au changement de
+   véhicule. Le système d'images calculait le bon chemin à chaque choix, le
+   panneau de débogage l'affichait, et l'image restait celle de l'étape 1.
+
+   L'observateur des prix, dix lignes plus haut, était `deep` depuis toujours :
+   c'est pourquoi le prix suivait et pas l'image.
+*/
 watch(
     [selectedVehicle, selectedOptions, vehicleSteps, forceImageRefresh],
     rafraichirApercu,
-    { immediate: true }
+    { immediate: true, deep: true }
 );
 
 // Computed property pour toutes les sous-étapes

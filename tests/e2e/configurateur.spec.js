@@ -83,6 +83,40 @@ test.describe('tunnel de configuration', () => {
         await ouvrirOrion(page)
         await expect(page.locator('.van-configurator > footer')).toContainText('5 900,00')
     })
+
+    /*
+       L'aperçu ne suivait pas les choix.
+
+       L'observateur qui le rafraîchit n'était pas `deep`, et les sélections
+       sont écrites dans un objet modifié en place : il ne partait donc qu'au
+       changement de véhicule. Le système d'images calculait le bon chemin à
+       chaque clic, le panneau de débogage l'affichait — et le visiteur gardait
+       sous les yeux l'image de la première étape.
+
+       Rien ne le voyait : le prix, lui, suivait. D'où ce test, qui regarde
+       l'image plutôt que le chiffre.
+    */
+    test('l’aperçu suit les sélections', async ({ page }) => {
+        await ouvrirOrion(page)
+
+        const apercu = page.locator('.choice-preview')
+        const depart = await apercu.getAttribute('src')
+
+        // Jusqu'à la première étape qui porte des options d'aménagement.
+        for (let i = 0; i < 6; i++) {
+            if (await page.locator('.content-section h2').first().textContent()
+                .then((t) => /mobilier/i.test(t))) break
+
+            await debloquer(page)
+            await page.locator('button.next').click()
+            await page.waitForTimeout(250)
+        }
+
+        await page.locator('.option-card:not(.selected)').first().click()
+
+        await expect(apercu).not.toHaveAttribute('src', depart)
+        await expect(apercu).toHaveJSProperty('naturalWidth', 1280)
+    })
 })
 
 test.describe('accessibilité au clavier', () => {

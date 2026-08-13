@@ -30,16 +30,11 @@
 			:vehicles="vehicles"
 			:selected-vehicle="selectedVehicle"
 			:selected-options="selectedOptions"
-			:is-option-selected="isOptionSelected"
-			:is-sub-option-selected="isSubOptionSelected"
-			:get-quantity="getQuantity"
-			:current-step="currentStep"
 			:total-price="totalPrice"
 			:vehicle-steps="vehicleSteps"
 			@select-vehicle="handleSelectVehicle"
 			@update-options="handleUpdateOptions"
 			@select-option="handleUpdateOptions"
-			@initialize-selected-options="handleInitializeSelectedOptions"
 			@update-openings-quantity="handleUpdateOpeningsQuantity"
 			@increment-openings-quantity="handleIncrementOpeningsQuantity"
 			@decrement-openings-quantity="handleDecrementOpeningsQuantity"
@@ -95,7 +90,6 @@
 <script setup>
 import { configuratorLogic, configuratorService } from '~~/app/composables/useConfigurator';
 import { useVehicleImages } from '~~/app/composables/useVehicleImages';
-import { resumeConfiguration } from '~~/app/composables/useResumeConfiguration';
 import Header from './Header.vue';
 import ProgressBar from './ProgressBar.vue';
 import Navigation from './Navigation.vue';
@@ -430,62 +424,7 @@ const handleSelectVehicle = async (vehicle, skipStepReset = false) => {
             }
         }
     }
-    
-    // Pré-charger les images pour le véhicule sélectionné
-    if (vehicle.id === 'orion') {
-        // Le nouveau système d'images universel gère automatiquement le pré-chargement
-        // via les fallbacks et l'historique des images validées
-    }
-};
-
-// Vérifier si une option est sélectionnée
-const isOptionSelected = (optionKey) => {
-	const stepData = getStepData(currentStep.value);
-	if (!stepData) return false;
-	
-	if (stepData.fields) {
-		for (const field of stepData.fields) {
-			if (field.type === 'multiple') {
-				const selectedFieldOptions = selectedOptions.value[field.key];
-				
-				if (Array.isArray(selectedFieldOptions)) {
-					return selectedFieldOptions.includes(optionKey);
-				} else if (typeof selectedFieldOptions === 'object' && selectedFieldOptions.options) {
-					return selectedFieldOptions.options.includes(optionKey);
-				}
-			}
-		}
-	}
-	
-	const stepOptions = selectedOptions.value[stepData.key];
-	
-	if (Array.isArray(stepOptions)) {
-		return stepOptions.includes(optionKey);
-	} else if (typeof stepOptions === 'object') {
-		return stepOptions.main === optionKey || stepOptions.sub === optionKey;
-	}
-	
-	return stepOptions === optionKey;
-};
-
-// Vérifier si une sous-option est sélectionnée
-const isSubOptionSelected = (mainOptionKey, subOptionKey) => {
-	const stepData = getStepData(currentStep.value);
-	if (!stepData?.fields) return false;
-	
-	for (const field of stepData.fields) {
-		const fieldOptions = selectedOptions.value[field.key];
-		
-		if (field.type === 'unique' && typeof fieldOptions === 'object') {
-			return fieldOptions.main === mainOptionKey && fieldOptions.sub === subOptionKey;
-		} else if (field.type === 'multiple' && typeof fieldOptions === 'object' && fieldOptions.subOptions) {
-			const subOptionsList = fieldOptions.subOptions[mainOptionKey];
-			return Array.isArray(subOptionsList) && subOptionsList.includes(subOptionKey);
-		}
-	}
-	
-	return false;
-};
+    };
 
 // Gérer la mise à jour des options
 const handleUpdateOptions = (event) => {
@@ -502,8 +441,6 @@ const handleUpdateOptions = (event) => {
     // Les composants de champs gèrent déjà leur logique interne (options par défaut, etc.)
     // Il suffit de mettre à jour la valeur
     selectedOptions.value[event.key] = event.value;
-    
-    totalPrice.value = calculateTotalPrice();
 };
 
 // Gestion de la navigation précédente
@@ -518,7 +455,6 @@ const handlePrevious = () => {
     }
     
     currentStep.value--;
-    totalPrice.value = calculateTotalPrice();
 };
 
 // Gestion des quantités d'ouvertures
@@ -654,16 +590,6 @@ watch(vehicleSteps, (newSteps) => {
     });
 }, { immediate: true });
 
-// Obtenir la quantité pour les options
-const getQuantity = (optionId, subOptionId) => {
-    if (!currentStepData.value || !currentStepData.value.options) return 0;
-    if (!selectedOptions.value[currentStepData.value.key]?.quantities?.[optionId]) return 0;
-    if (subOptionId) {
-        return selectedOptions.value[currentStepData.value.key].quantities[optionId][subOptionId] || 0;
-    }
-    return selectedOptions.value[currentStepData.value.key].quantities[optionId] || 0;
-};
-
 // Finaliser la configuration
 const finishConfiguration = async () => {
     const currentStepData = getStepData(currentStep.value);
@@ -684,45 +610,9 @@ const finishConfiguration = async () => {
     }
 };
 
-// Initialiser les options sélectionnées
-const handleInitializeSelectedOptions = ({ key, value }) => {
-    if (!Array.isArray(value)) {
-        selectedOptions.value[key] = [];
-    } else {
-        selectedOptions.value[key] = value;
-    }
-    
-    // Gérer l'initialisation des options par défaut
-    // Trouver le champ dans les étapes du véhicule actuel
-    const currentVehicleSteps = vehicleSteps.value || [];
-    let field = null;
-    
-    for (const step of currentVehicleSteps) {
-        if (step.subSteps) {
-            for (const subStep of step.subSteps) {
-                if (subStep.fields) {
-                    field = subStep.fields.find(f => f.key === key);
-                    if (field) break;
-                }
-            }
-        }
-        if (field) break;
-    }
-    
-    if (field && configuratorLogic.hasDefaultOption(field)) {
-        // Si aucune option n'est sélectionnée, initialiser avec l'option par défaut
-        if (!selectedOptions.value[key] || selectedOptions.value[key].length === 0) {
-            const defaultSelection = configuratorLogic.initializeDefaultSelection(field);
-            selectedOptions.value[key] = defaultSelection;
-        }
-    }
-};
-
 // Écouter les événements de mise à jour d'image
-const handleVehicleImageUpdate = (event) => {
-    const { imageKey, imagePath } = event.detail;
-    
-    // Forcer le recalcul de l'image d'aperçu
+const handleVehicleImageUpdate = () => {
+    // Le détail de l'événement n'est pas lu : seul le signal compte.
     forceImageRefresh.value++;
 };
 

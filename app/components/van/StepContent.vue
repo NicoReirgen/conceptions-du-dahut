@@ -181,22 +181,12 @@ const props = defineProps({
         type: [Object, Array],
         default: () => ({})
     },
-    isOptionSelected: {
-        type: Function,
-        required: true
-    },
-    isSubOptionSelected: {
-        type: Function,
-        required: true
-    },
-    getQuantity: {
-        type: Function,
-        required: true
-    },
-    currentStep: {
-        type: Number,
-        required: true
-    },
+    /*
+       `isOptionSelected`, `isSubOptionSelected`, `getQuantity` et `currentStep`
+       étaient déclarés ici et lus nulle part : les champs interrogent
+       `selectedOptions` eux-mêmes. Les trois fonctions passées coûtaient 53
+       lignes au configurateur, dont deux au-delà des seuils d'imbrication.
+    */
     totalPrice: {
         type: Number,
         required: true

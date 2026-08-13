@@ -15,34 +15,12 @@ import { extractDeepestOptions } from '~~/app/composables/images/feuillesImage'
 */
 
 /*
-   La combinaison par défaut n'ajoute pas de segment : c'est elle que montrent
-   les images de base.
-
-   Stratifié + Gris Galet, par exemple, est le rendu de départ du configurateur.
-   Faute de le dire, le système composait `finitions/stratifie-gris_galet/…`,
-   récoltait un 404 et se rabattait sur l'image sans finition — la bonne, mais
-   atteinte par l'échec, avec l'aller-retour visible que cela suppose.
-
-   La règle exige les deux niveaux. Le seul coloris ne suffirait pas : le jour
-   où l'on déclarerait « transparent » par défaut sous le Bouleau, le segment
-   `bouleau` disparaîtrait du chemin, alors que le bouleau n'est pas le rendu de
-   base.
-*/
-const estLaCombinaisonParDefaut = (value, fieldInfo) => {
-    const principale = fieldInfo?.field?.options?.find((option) => option.key === value.main)
-    if (principale?.isDefault !== true) return false
-
-    return principale.subOptions?.find((sous) => sous.key === value.sub)?.isDefault === true
-}
-
-/*
    Choix unique : la principale, éventuellement suivie de sa sous-option.
    Chacune peut être écartée des images indépendamment.
 */
 const valeursUnique = (value, fieldInfo) => {
     if (!value?.main) return null
     if (!isOptionImageEnabled(value.main, fieldInfo)) return null
-    if (estLaCombinaisonParDefaut(value, fieldInfo)) return null
 
     const principale = normalizeValue(value.main)
 

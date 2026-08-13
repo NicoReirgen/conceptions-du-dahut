@@ -569,6 +569,18 @@ onUnmounted(() => {
         padding-bottom: 0;
 
         background: #FFF;
+
+        /*
+           Le rayon du site — 10 px, celui de la navigation, de la modale de
+           devis et des encadrés. Le panneau est une surface posée sur l'aperçu
+           du véhicule, comme la modale l'est sur la page.
+
+           `overflow: hidden` pour que le contenu qui défile, et le pied de page
+           collé au bord bas, respectent les coins.
+        */
+        border-radius: 10px;
+        overflow: hidden;
+
         box-shadow: 4px 8px 20px 0px rgba(0, 0, 0, 0.25);
         
         position: absolute;

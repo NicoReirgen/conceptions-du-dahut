@@ -90,6 +90,7 @@
 <script setup>
 import { configuratorLogic, configuratorService } from '~~/app/composables/useConfigurator';
 import { useVehicleImages } from '~~/app/composables/useVehicleImages';
+import { champsDuVehicule, useEtapesVehicule } from '~~/app/composables/useEtapesVehicule';
 import Header from './Header.vue';
 import ProgressBar from './ProgressBar.vue';
 import Navigation from './Navigation.vue';
@@ -146,10 +147,19 @@ const toggleFormVisibility = () => {
     isFormVisible.value = !isFormVisible.value;
 };
 
-// Étapes « plates » (inclut les sous-étapes)
-const flatVehicleSteps = computed(() => {
-    return vehicleSteps.value.flatMap(step => step.subSteps || step);
-});
+/*
+   La traduction des étapes du catalogue en écrans du tunnel vit désormais dans
+   `useEtapesVehicule`, avec ses tests. Les noms sont conservés tels que le
+   gabarit les emploie.
+*/
+const {
+    etapesAPlat: flatVehicleSteps,
+    etapeCourante: currentStepData,
+    estDerniereEtape: isLastStep,
+    nombreDEtapes: totalSteps,
+    toutesLesEtapes: allSteps,
+    toutesLesSousEtapes: allSubSteps,
+} = useEtapesVehicule(vehicleSteps, selectedVehicle, currentStep);
 
 // Réinitialiser les sélections quand on retourne à l'étape 1
 watch(currentStep, (newStep) => {
@@ -196,83 +206,12 @@ const handlePreviewImageError = () => {
     finalImageUrl.value = '/assets/images/orion/orion-base.jpg';
 };
 
-// Fonctions utilitaires
-const getStepData = (stepIndex) => {
-	if (!selectedVehicle.value) {
-		return { key: 'model_selection', name: 'choix', type: 'vehicle' };
-	}
-	
-	if (stepIndex === 1) {
-		return { key: 'model_selection', name: 'Modèle', type: 'vehicle' };
-	}
-
-	let currentIndex = 1;
-	for (const step of vehicleSteps.value) {
-		if (step.subSteps) {
-			const subStepCount = step.subSteps.length;
-			if (stepIndex <= currentIndex + subStepCount) {
-				const subStepIndex = stepIndex - currentIndex - 1;
-				return {
-					...step.subSteps[subStepIndex],
-					subStepIndex,
-					totalSubSteps: subStepCount
-				};
-			}
-			currentIndex += subStepCount;
-		} else {
-			if (stepIndex === currentIndex + 1) {
-				return step;
-			}
-			currentIndex++;
-		}
-	}
-	
-	return null;
-};
-
-// Computed properties
-const isLastStep = computed(() => {
-	return currentStep.value === totalSteps.value;
-});
-
-const allSteps = computed(() => {
-	if (!selectedVehicle.value) {
-		return [{ key: 'model_selection', name: '1. Modèle', type: 'vehicle' }];
-	}
-	
-	return [
-		{ key: 'model_selection', name: '1. Modèle', type: 'vehicle' },
-		...vehicleSteps.value.map((step, index) => ({
-			...step,
-			name: `${index + 2}. ${step.name}`
-		}))
-	];
-});
-
-const totalSteps = computed(() => {
-	let count = 1;
-	vehicleSteps.value.forEach(step => {
-		if (step.subSteps) {
-			count += step.subSteps.length;
-		} else {
-			count += 1;
-		}
-	});
-	return count;
-});
-
-const currentStepData = computed(() => {
-	return getStepData(currentStep.value);
-});
-
 const canProceed = computed(() => {
-    const currentStepData = getStepData(currentStep.value);
-
-    if (currentStepData.type === 'vehicle') {
+    if (currentStepData.value.type === 'vehicle') {
         return !!selectedVehicle.value;
     }
 
-    if (currentStepData.type === 'contact') {
+    if (currentStepData.value.type === 'contact') {
         // Pour l'étape de contact, vérifier la validité du formulaire
         if (stepContentRef.value) {
             const isValid = stepContentRef.value.getContactFormValidity();
@@ -282,8 +221,8 @@ const canProceed = computed(() => {
         return false;
     }
 
-    if (currentStepData.type === 'group' && currentStepData.fields) {
-        return currentStepData.fields.every((field) =>
+    if (currentStepData.value.type === 'group' && currentStepData.value.fields) {
+        return currentStepData.value.fields.every((field) =>
             configuratorLogic.champLaissePasser(
                 field,
                 selectedOptions.value[field.key],
@@ -381,21 +320,6 @@ watch(
 );
 
 // Computed property pour toutes les sous-étapes
-const allSubSteps = computed(() => {
-    const steps = [{ key: 'model_selection', name: 'Choix produit', type: 'vehicle' }];
-    if (!selectedVehicle.value) return steps;
-
-    vehicleSteps.value.forEach(step => {
-        if (step.subSteps) {
-            steps.push(...step.subSteps);
-        } else {
-            steps.push(step);
-        }
-    });
-
-    return steps;
-});
-
 // Sélectionner un véhicule
 const handleSelectVehicle = async (vehicle, skipStepReset = false) => {
     selectedVehicle.value = vehicle;
@@ -405,35 +329,24 @@ const handleSelectVehicle = async (vehicle, skipStepReset = false) => {
         currentStep.value = 1;
     }
     
-    // Initialiser les options par défaut pour tous les champs qui en ont
-    if (vehicle.steps) {
-        for (const step of vehicle.steps) {
-            if (step.subSteps) {
-                for (const subStep of step.subSteps) {
-                    if (subStep.fields) {
-                        for (const field of subStep.fields) {
-                            if (configuratorLogic.hasDefaultOption(field)) {
-                                const defaultSelection = configuratorLogic.initializeDefaultSelection(field);
-                                if (defaultSelection.length > 0) {
-                                    selectedOptions.value[field.key] = defaultSelection;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+    // Les champs qui déclarent une option par défaut partent avec elle.
+    for (const champ of champsDuVehicule(vehicle.steps)) {
+        if (!configuratorLogic.hasDefaultOption(champ)) continue;
+
+        const defaut = configuratorLogic.initializeDefaultSelection(champ);
+        if (defaut.length > 0) {
+            selectedOptions.value[champ.key] = defaut;
         }
     }
-    };
+};
 
 // Gérer la mise à jour des options
 const handleUpdateOptions = (event) => {
-    const currentStepData = getStepData(currentStep.value);
-    if (!currentStepData || !currentStepData.fields) {
+    if (!currentStepData.value?.fields) {
         return;
     }
 
-    const field = currentStepData.fields.find(f => f.key === event.key);
+    const field = currentStepData.value.fields.find(f => f.key === event.key);
     if (!field) {
         return;
     }
@@ -447,9 +360,8 @@ const handleUpdateOptions = (event) => {
 const handlePrevious = () => {
     if (currentStep.value <= 1) return;
     
-    const currentStepData = getStepData(currentStep.value);
-    if (currentStepData && currentStepData.fields) {
-        currentStepData.fields.forEach(field => {
+    if (currentStepData.value?.fields) {
+        currentStepData.value.fields.forEach(field => {
             delete selectedOptions.value[field.key];
         });
     }
@@ -457,62 +369,64 @@ const handlePrevious = () => {
     currentStep.value--;
 };
 
-// Gestion des quantités d'ouvertures
-const handleDecrementOpeningsQuantity = (optionKey) => {
-    const currentStepData = getStepData(currentStep.value);
-    const field = currentStepData?.fields.find(f => f.key === 'ouvertures.fenetres');
-    if (!field) return;
+/*
+   Gestion des quantités d'ouvrants.
 
-    if (!selectedOptions.value[field.key]) {
-        selectedOptions.value[field.key] = { quantities: {}, optional: false, painting: false };
+   Les trois gestionnaires partageaient huit lignes de préambule — retrouver le
+   champ, lui créer une valeur, lui créer une table de quantités — pour ne
+   différer que sur leur dernière ligne.
+
+   La clé du champ est écrite en dur, comme dans la version d'origine : c'est le
+   seul champ de type `openings` du catalogue.
+*/
+const tableDesQuantites = () => {
+    const champ = currentStepData.value?.fields?.find(f => f.key === 'ouvertures.fenetres');
+    if (!champ) return null;
+
+    if (!selectedOptions.value[champ.key]) {
+        selectedOptions.value[champ.key] = { quantities: {}, optional: false, painting: false };
     }
-    if (!selectedOptions.value[field.key].quantities) {
-        selectedOptions.value[field.key].quantities = {};
+    if (!selectedOptions.value[champ.key].quantities) {
+        selectedOptions.value[champ.key].quantities = {};
     }
 
-    const currentQuantity = selectedOptions.value[field.key].quantities[optionKey] || 0;
-    const option = field.options.main.options.find(opt => opt.key === optionKey);
-    const minQuantity = option?.quantity?.min || 0;
-
-    if (currentQuantity > minQuantity) {
-        selectedOptions.value[field.key].quantities[optionKey] = currentQuantity - 1;
-    }
+    return { champ, quantites: selectedOptions.value[champ.key].quantities };
 };
 
-const handleIncrementOpeningsQuantity = (optionKey) => {
-    const currentStepData = getStepData(currentStep.value);
-    const field = currentStepData?.fields.find(f => f.key === 'ouvertures.fenetres');
-    if (!field) return;
+/** Les bornes déclarées par une option d'ouvrant. */
+const bornesDeLOuvrant = (champ, optionKey) => {
+    const option = champ.options.main.options.find(opt => opt.key === optionKey);
 
-    if (!selectedOptions.value[field.key]) {
-        selectedOptions.value[field.key] = { quantities: {}, optional: false, painting: false };
-    }
-    if (!selectedOptions.value[field.key].quantities) {
-        selectedOptions.value[field.key].quantities = {};
-    }
-
-    const currentQuantity = selectedOptions.value[field.key].quantities[optionKey] || 0;
-    const option = field.options.main.options.find(opt => opt.key === optionKey);
-    const maxQuantity = option?.quantity?.max || Infinity;
-
-    if (currentQuantity < maxQuantity) {
-        selectedOptions.value[field.key].quantities[optionKey] = currentQuantity + 1;
-    }
+    return { min: option?.quantity?.min || 0, max: option?.quantity?.max || Infinity };
 };
 
 const handleUpdateOpeningsQuantity = ([optionKey, quantity]) => {
-    const currentStepData = getStepData(currentStep.value);
-    const field = currentStepData?.fields.find(f => f.key === 'ouvertures.fenetres');
-    if (!field) return;
+    const ouvrants = tableDesQuantites();
+    if (!ouvrants) return;
 
-    if (!selectedOptions.value[field.key]) {
-        selectedOptions.value[field.key] = { quantities: {}, optional: false, painting: false };
-    }
-    if (!selectedOptions.value[field.key].quantities) {
-        selectedOptions.value[field.key].quantities = {};
-    }
+    ouvrants.quantites[optionKey] = quantity;
+};
 
-    selectedOptions.value[field.key].quantities[optionKey] = quantity;
+const handleIncrementOpeningsQuantity = (optionKey) => {
+    const ouvrants = tableDesQuantites();
+    if (!ouvrants) return;
+
+    const courante = ouvrants.quantites[optionKey] || 0;
+
+    if (courante < bornesDeLOuvrant(ouvrants.champ, optionKey).max) {
+        ouvrants.quantites[optionKey] = courante + 1;
+    }
+};
+
+const handleDecrementOpeningsQuantity = (optionKey) => {
+    const ouvrants = tableDesQuantites();
+    if (!ouvrants) return;
+
+    const courante = ouvrants.quantites[optionKey] || 0;
+
+    if (courante > bornesDeLOuvrant(ouvrants.champ, optionKey).min) {
+        ouvrants.quantites[optionKey] = courante - 1;
+    }
 };
 
 // Helper function pour obtenir la valeur du modèle
@@ -550,52 +464,23 @@ const getModelValue = (fieldKey, fieldType) => {
 provide('getModelValue', getModelValue);
 
 // Helper pour trouver un champ par sa clé
-const findFieldByKey = (fieldKey) => {
-    for (const step of vehicleSteps.value) {
-        if (step.subSteps) {
-            for (const subStep of step.subSteps) {
-                if (subStep.fields) {
-                    const field = subStep.fields.find(f => f.key === fieldKey);
-                    if (field) return field;
-                }
-            }
-        } else if (step.fields) {
-            const field = step.fields.find(f => f.key === fieldKey);
-            if (field) return field;
+const findFieldByKey = (fieldKey) =>
+    champsDuVehicule(vehicleSteps.value).find((champ) => champ.key === fieldKey) || null;
+
+// Chaque champ reçoit la valeur vide de son type dès l'entrée dans le véhicule.
+watch(vehicleSteps, (etapes) => {
+    for (const champ of champsDuVehicule(etapes)) {
+        if (!selectedOptions.value[champ.key]) {
+            getModelValue(champ.key, champ.type);
         }
     }
-    return null;
-};
-
-// Initialiser les options sélectionnées
-watch(vehicleSteps, (newSteps) => {
-    newSteps.forEach((step) => {
-        if (step.subSteps) {
-            step.subSteps.forEach((subStep) => {
-                if (subStep.fields) {
-                    subStep.fields.forEach((field) => {
-                        if (!selectedOptions.value[field.key]) {
-                            getModelValue(field.key, field.type);
-                        }
-                    });
-                }
-            });
-        } else if (step.fields) {
-            step.fields.forEach((field) => {
-                if (!selectedOptions.value[field.key]) {
-                    getModelValue(field.key, field.type);
-                }
-            });
-        }
-    });
 }, { immediate: true });
 
 // Finaliser la configuration
 const finishConfiguration = async () => {
-    const currentStepData = getStepData(currentStep.value);
     
     // Si on est sur l'étape de contact, soumettre le formulaire
-    if (currentStepData.type === 'contact') {
+    if (currentStepData.value.type === 'contact') {
         if (stepContentRef.value) {
             try {
                 // Le formulaire affiche lui-même sa confirmation et ses erreurs.

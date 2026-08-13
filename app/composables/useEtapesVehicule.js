@@ -11,6 +11,9 @@
    composant, et se testent avec un tableau d'étapes.
 */
 
+/** Les étapes telles que le tunnel les parcourt : sous-étapes dépliées. */
+export const etapesAPlat = (etapes) => (etapes || []).flatMap((etape) => etape.subSteps || etape)
+
 /** L'écran d'un rang donné, sous-étapes comprises. Le rang 1 est le véhicule. */
 export const etapeAuRang = (etapes, rang) => {
     if (rang === 1) {
@@ -62,8 +65,7 @@ export const champsDuVehicule = (etapes) => (etapes || []).flatMap(
  * @param {import('vue').Ref} rangCourant      Écran affiché, à partir de 1.
  */
 export const useEtapesVehicule = (etapes, vehiculeRetenu, rangCourant) => {
-    /* Les étapes telles que les parcourt le tunnel : sous-étapes dépliées. */
-    const etapesAPlat = computed(() => etapes.value.flatMap((etape) => etape.subSteps || etape))
+    const etapesDeployees = computed(() => etapesAPlat(etapes.value))
 
     const nombreDEtapes = computed(
         () => 1 + etapes.value.reduce((total, etape) => total + (etape.subSteps?.length || 1), 0)
@@ -83,7 +85,7 @@ export const useEtapesVehicule = (etapes, vehiculeRetenu, rangCourant) => {
     const toutesLesSousEtapes = computed(() => {
         const depart = [{ key: 'model_selection', name: 'Choix produit', type: 'vehicle' }]
 
-        return vehiculeRetenu.value ? [...depart, ...etapesAPlat.value] : depart
+        return vehiculeRetenu.value ? [...depart, ...etapesDeployees.value] : depart
     })
 
     /* La barre de progression : une entrée par étape principale, numérotée. */
@@ -98,7 +100,7 @@ export const useEtapesVehicule = (etapes, vehiculeRetenu, rangCourant) => {
     })
 
     return {
-        etapesAPlat,
+        etapesAPlat: etapesDeployees,
         etapeCourante,
         estDerniereEtape,
         nombreDEtapes,

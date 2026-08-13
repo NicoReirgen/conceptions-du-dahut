@@ -127,28 +127,47 @@ describe('champs à choix multiple', () => {
         expect(groupe.options).toHaveLength(1)
     })
 
-    it('détaille les quantités', () => {
-        const avecQuantites = [etape('o', 'Ouvrants', [{
-            key: 'fenetres', type: 'multiple',
-            options: [{ key: 'lot', name: 'Lot', subOptions: [{ key: 'fixe', name: 'Fenêtre fixe', price: 366 }] }],
+    /*
+       Le coloris d'une option cochée.
+
+       `MultipleField` en retient un seul par option et l'écrit sous forme de
+       clé ; le récapitulatif n'acceptait qu'un tableau et laissait donc tomber
+       la ligne — dans l'affichage comme dans la demande de devis.
+    */
+    it('nomme le coloris retenu sous une option', () => {
+        const avecColoris = [etape('h', 'Housses', [{
+            key: 'housses', type: 'multiple',
+            options: [{
+                key: 'banquette',
+                name: 'Banquette',
+                price: 300,
+                subOptions: [{ key: 'ecru', name: 'Écru', price: 90 }],
+            }],
         }])]
 
-        const [groupe] = resumeConfiguration(avecQuantites, {
-            fenetres: { quantities: { lot: { fixe: 2 } } },
+        const [groupe] = resumeConfiguration(avecColoris, {
+            housses: { options: ['banquette'], subOptions: { banquette: 'ecru' } },
         })
 
-        expect(groupe.options[0].name).toBe('Lot - Fenêtre fixe (x2)')
-        expect(groupe.options[0].price).toBe(732)
+        expect(groupe.options.map((o) => o.name)).toEqual(['Banquette', 'Banquette - Écru'])
+        expect(groupe.options.map((o) => o.price)).toEqual([300, 90])
     })
 
-    it('ignore une quantité nulle', () => {
-        const avecQuantites = [etape('o', 'Ouvrants', [{
-            key: 'fenetres', type: 'multiple',
-            options: [{ key: 'lot', name: 'Lot', subOptions: [{ key: 'fixe', name: 'Fixe', price: 366 }] }],
+    it('accepte aussi plusieurs coloris sous une même option', () => {
+        const avecColoris = [etape('h', 'Housses', [{
+            key: 'housses', type: 'multiple',
+            options: [{
+                key: 'banquette',
+                name: 'Banquette',
+                subOptions: [{ key: 'ecru', name: 'Écru' }, { key: 'anthracite', name: 'Anthracite' }],
+            }],
         }])]
 
-        expect(resumeConfiguration(avecQuantites, { fenetres: { quantities: { lot: { fixe: 0 } } } }))
-            .toEqual([])
+        const [groupe] = resumeConfiguration(avecColoris, {
+            housses: { options: ['banquette'], subOptions: { banquette: ['ecru', 'anthracite'] } },
+        })
+
+        expect(groupe.options).toHaveLength(3)
     })
 })
 

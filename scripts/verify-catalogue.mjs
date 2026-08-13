@@ -177,6 +177,60 @@ catalogue.forEach(verifierIncompatibilites)
 
 /* ----------------------------------------------------------------- images */
 
+/*
+   Les combinaisons option × coloris.
+
+   Le contrôle des clés ne descend pas dans les sous-options : il compare des
+   segments de noms, et « stratifie » comme « gris_galet » s'y trouvaient
+   séparément, alors que c'est leur paire qui nomme un dossier. La combinaison
+   Stratifié + Gris Galet a ainsi manqué sans que rien ne le dise — l'aperçu se
+   rabattait en silence sur une autre image.
+
+   Une paire sans dossier n'est pas forcément une faute : elle peut désigner le
+   rendu de base. Mais alors il faut le déclarer, et le système n'en sait rien
+   aujourd'hui. Le contrôle demande donc que chaque paire ait son dossier.
+*/
+const verifierColoris = (vehicule, racine) => {
+    const manquantes = []
+
+    const parcourir = (noeud) => {
+        if (Array.isArray(noeud)) return noeud.forEach(parcourir)
+        if (!noeud || typeof noeud !== 'object') return
+
+        if (noeud.traitementImage === true) {
+            for (const option of noeud.options || []) {
+                for (const sous of option.subOptions || []) {
+                    /*
+                       L'endroit exact compte. Chercher le nom n'importe où dans
+                       l'arbre ne suffit pas : `stratifie-gris_galet` existait
+                       sous `parements/`, ce qui aurait masqué son absence au
+                       premier niveau — précisément le cas qu'on veut voir.
+                    */
+                    const attendu = join(racine, noeud.key, `${option.key}-${sous.key}`)
+
+                    if (!existsSync(attendu)) manquantes.push(`${noeud.key}/${option.key}-${sous.key}`)
+                }
+            }
+        }
+
+        for (const branche of BRANCHES) {
+            if (noeud[branche]) parcourir(noeud[branche])
+        }
+    }
+
+    parcourir(vehicule)
+
+    for (const paire of manquantes) {
+        const quoi = `la combinaison « ${paire} » n'a pas de dossier d'images`
+
+        if (vehicule.soonAvailable === true) {
+            alertes.push(`${quoi} (${vehicule.id}) — sans effet tant que ce véhicule reste fermé.`)
+        } else {
+            erreurs.push(`${quoi} (${vehicule.id}) : l'aperçu se rabattra en silence sur une autre image.`)
+        }
+    }
+}
+
 /** Tous les segments de nom présents dans l'arbre d'images d'un véhicule. */
 const segmentsDeLArbre = (racine) => {
     const atomes = new Set()
@@ -209,6 +263,8 @@ for (const vehicule of catalogue) {
         }
         continue
     }
+
+    verifierColoris(vehicule, racine)
 
     const atomes = segmentsDeLArbre(racine)
 

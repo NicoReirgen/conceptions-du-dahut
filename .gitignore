@@ -1,0 +1,42 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Dérivés d'assets, régénérables via `npm run assets`
+public/assets/images
+public/assets/fonts
+public/media
+
+# Résultats de Playwright
+test-results
+
+# Sortie de graphify : 1,3 Mo régénérables, qui se démoderaient à chaque
+# changement de code et encombreraient les diffs
+graphify-out
+
+# Originaux des images : 238 Mo pour 181 fichiers, dont git ne saurait rien
+# faire de bon — aucun delta possible sur du binaire, et un poids définitif
+# dans l'historique. Ils ne sont PAS régénérables : l'entreprise n'existe plus.
+# À sauvegarder de leur côté.
+assets-source

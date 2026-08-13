@@ -1,0 +1,651 @@
+/*
+   Polices variables sous-ensemblées en latin + latin étendu et converties en
+   woff2 par `npm run fonts` : 220 Ko de TTF ramenés à 52 Ko, l'axe de graisse
+   conservé.
+
+   Les fichiers d'origine pointaient vers /assets/fonts/*.ttf, chemin servi
+   depuis public/ où ils n'ont jamais été copiés : ils renvoyaient 404 et le site
+   s'affichait avec la police de repli du système.
+
+   unicode-range évite au navigateur de télécharger la police pour une page qui
+   n'en utiliserait aucun glyphe.
+*/
+@font-face {
+    font-family: Switzer;
+    font-style: normal;
+    font-weight: 1 999;
+    font-display: swap;
+    src: url("/assets/fonts/Switzer-Variable.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+        U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: Switzer;
+    font-style: italic;
+    font-weight: 1 999;
+    font-display: swap;
+    src: url("/assets/fonts/Switzer-VariableItalic.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191,
+        U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+   Police de repli calée sur les métriques de Switzer.
+
+   Avec `font-display: swap`, le texte s'affiche d'abord dans la police système
+   puis bascule sur Switzer. Les deux n'ayant ni la même largeur ni les mêmes
+   hauteurs, tout le contenu situé sous un bloc de texte se décalait au moment
+   du basculement — un CLS de 0,27 sur les pages riches en texte, largement
+   au-delà du seuil de 0,1.
+
+   Les valeurs ci-dessous sont mesurées : rapport des largeurs moyennes de
+   minuscules entre Switzer et Arial, et hauteurs de Switzer ramenées à cette
+   échelle. Le repli occupe ainsi exactement la même place, et le basculement
+   ne déplace plus rien.
+*/
+@font-face {
+    font-family: "Switzer repli";
+    src: local("Arial"), local("Helvetica"), local("Liberation Sans");
+    size-adjust: 104.26%;
+    ascent-override: 94%;
+    descent-override: 23.98%;
+    line-gap-override: 8.63%;
+}
+
+@import "tailwindcss";
+
+@theme {
+    --font-switzer: "Switzer", "Switzer repli", sans-serif;
+    --breakpoint-3xl: 2560px;
+}
+
+/* TYPOGRAPHIES */
+@layer base {
+    html {
+        /* @apply text-base 3xl:text-3xl; */
+        @apply text-[12px] md:text-[14px] xl:text-[16px];
+    }
+
+    body {
+        @apply bg-black font-switzer text-white;
+    }
+
+    h1, h2, h3 {
+        @apply font-medium leading-none;
+    }
+    
+    h1, .h1-size {
+        /* @apply text-[2.375rem] md:text-[3.125rem] xl:text-[4.235rem]; */
+        @apply text-[4.235rem];
+    }
+    
+    h2, .h2-size {
+        /* @apply text-[2rem] xl:text-[2.618rem]; */
+        @apply text-[2.618rem];
+    }
+    
+    h3, .h3-size {
+        /* @apply text-[1rem] md:text-[1.368rem]; */
+        @apply text-[1.368rem];
+    }
+
+    img {
+        @apply rounded-[10px];
+        @apply object-cover;
+    }
+
+    picture {
+        @apply flex;
+    }
+}
+
+@layer base {
+    header, section {
+        @apply w-full;
+        @apply mb-27.5 md:mb-37.5 lg:mb-42.5;
+    }  
+
+    .grid {
+        @apply gap-5;
+    }
+}
+
+a[href="#"] {
+    @apply pointer-events-none opacity-50 cursor-not-allowed;
+
+    &:hover {
+        @apply cursor-not-allowed;
+    }
+}
+
+.mb85 {
+    @apply mb-9 md:mb-15 lg:mb-21.25;
+}
+
+/* BASE */
+input, textarea {
+    @apply h-8.5 border border-white rounded-[10px] px-3.75 py-2.5 text-[0.5625rem];
+    @apply placeholder:text-[0.5625rem] placeholder:font-light placeholder:font-switzer placeholder:text-white;
+}
+
+textarea {
+    @apply h-25 resize-none;   
+}
+
+
+
+
+button {
+    @apply cursor-pointer;
+}
+
+button.button-underlined {
+    &:before, &:after {
+        content: '';
+
+        display: block;
+
+        width: 85%;
+        height: 24px;
+
+        position: absolute;
+
+        transition: all .15s ease-in-out;
+    }
+
+    &:before {
+        border-left: 1px solid white;
+        border-bottom: 1px solid white;
+
+        border-bottom-left-radius: 2px;
+
+        left: 0;
+        bottom: 0;
+    }
+
+    &:after {
+        border-right: 1px solid white;
+        border-top: 1px solid white;
+
+        border-top-right-radius: 2px;
+
+        right: 0;
+        top: 0;
+    }
+
+    &:hover {
+        &:before, &:after {
+            @apply w-[95%] h-5;
+        }
+    }
+}
+
+/* Seul l'avis courant est en pleine couleur ; les voisins restent en retrait. */
+.carousel-avis > *:not([data-active]) {
+    color: #595959;
+}
+
+/*
+   Transition entre la liste des réalisations et une fiche.
+
+   Le thème clonait l'image cliquée et l'animait au plein écran avec GSAP. Ici
+   les deux états portent le même `view-transition-name` (posé dans
+   `homeArticle` et `Realisation`) et le navigateur interpole lui-même : l'image
+   s'étire, le titre rejoint sa position de fiche. Aucune bibliothèque, aucun
+   clone dans le DOM.
+
+   La durée reprend celle du thème — un demi-seconde, courbe douce — pour que le
+   passage reste discret.
+*/
+::view-transition-group(*) {
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Le reste de la page se contente d'un fondu, comme la transition par défaut. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}
+
+
+
+
+
+main.qui-sommes-nous {
+    article {
+        @apply relative;
+
+        &:before {
+            content: '';
+
+            display: block;
+
+            height: 14px;
+            width: 100%;
+
+            border-top: 1px solid white;
+            border-left: 1px solid white;
+            border-top-left-radius: 2px;
+
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    }
+}
+
+main.mentions-legales {
+    section h1, section h2, section h3 {
+        @apply text-[1rem];
+    }
+
+    p, ul {
+        @apply mb-5;
+    }
+
+    p:has(+ ul) {
+        @apply mb-0;
+    }
+
+    ul {
+        @apply pl-5 list-disc;
+    }
+}
+
+main.contact {
+    .contact-items {
+        @apply pt-2.5 mb-13.75 md:mb-18.75 lg:mb-21.25 relative;
+        @apply *:pl-3.75;
+
+        &:last-child {
+            @apply mb-0;
+        }
+    }
+
+    .contact-items:before, details:before {
+        @apply content-[''] block w-full h-3.5 rounded-tl-xs border-t-[.5px] border-l-[.5px] absolute top-0 left-0;
+    }
+    
+    .contact-section-title {
+        @apply col-span-full md:col-span-5;
+
+        /*
+           Le thème employait un h3 juste après le h1, ce que Lighthouse
+           sanctionne : l'ordre des titres doit rester descendant. Le balisage
+           utilise donc un h2, et le sélecteur couvre les deux niveaux pour que
+           l'apparence reste celle d'origine.
+        */
+        :is(h2, h3) {
+            @apply text-[1rem] font-normal text-[#A5A5A5];
+        }
+    }
+    
+}
+
+main.sur-mesure {
+    .devis-modal {
+        form {
+            @apply text-black;
+
+            .error {
+                @apply text-red-500;
+            }
+
+            .field-error {
+                @apply border-red-500;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"] {
+                @apply border-black border-[.5px] rounded-[10px] p-2.5;
+                @apply text-[0.625rem] font-light;
+                @apply placeholder:text-[0.625rem] placeholder:font-light placeholder:text-black/50;
+
+                &.field-error {
+                    @apply border-red-500;
+                }
+            }
+
+            textarea.field-error {
+                @apply border-red-500;
+            }
+
+            select.field-error {
+                @apply border-red-500;
+            }
+
+            [data-input-label].field-error {
+                @apply border-red-500;
+            }
+        }
+
+        .step {
+            @apply transition-all duration-300 ease-in-out;
+        }
+
+        .progress-bar {
+            @apply relative;
+
+            > div {
+                @apply relative z-10;
+                @apply transition-all duration-300 ease-in-out;
+
+                &.active {
+                    @apply text-black;
+                }
+
+                &:not(.active) {
+                    @apply text-[#A5A5A5];
+                }
+            }
+        }
+
+        .checkbox_wrap {
+            @apply flex flex-wrap gap-y-2.5 gap-x-5;
+        }
+
+        [data-input-label] {
+            @apply border-black border-[.5px] rounded-[10px] px-4 py-2.5 cursor-pointer;
+
+            @apply text-[0.625rem] font-light;
+
+            &:has(input:checked) {
+                @apply bg-black text-white;
+            }
+        }
+
+        [data-input-label] input {
+            @apply hidden; 
+        }
+
+        textarea {
+            @apply border-black border-[.5px] rounded-[10px] p-2.5;
+        }
+
+        .file-input-label {
+            @apply flex items-center justify-between gap-2.5 mb-2.5;
+            @apply border-black border-[.5px] rounded-[10px] px-4 py-2.5 cursor-pointer;
+        }
+
+        select {
+            @apply appearance-none bg-no-repeat bg-right pr-10;
+            @apply border-black border-[.5px] rounded-[10px] px-4 py-2.5;
+            @apply text-[0.625rem] font-light;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        /* Le contour était supprimé sans rien mettre à la place. */
+        select:focus-visible {
+            @apply outline-2 outline-offset-2 outline-black;
+        }
+    }
+}
+
+
+
+/*
+   Carrousels.
+
+   Swiper a été retiré : le défilement, l'inertie et le magnétisme sont assurés
+   par le navigateur. Ces quelques règles remplacent la feuille de style que la
+   bibliothèque chargeait, et le contenu reste parcourable même sans JavaScript.
+*/
+.carousel {
+    @apply flex overflow-x-auto overscroll-x-contain;
+
+    scroll-snap-type: x mandatory;
+
+    /* La barre de défilement est masquée : la navigation se fait aux pastilles. */
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    > * {
+        @apply shrink-0 grow-0 basis-full;
+
+        scroll-snap-align: start;
+    }
+}
+
+/*
+   Carrousel des avis — parti pris de la direction artistique.
+
+   Sur la maquette, l'avis courant occupe exactement 8 des 12 colonnes de la
+   grille, le suivant démarre colonne 9, et son aperçu file jusqu'au bord de
+   l'écran : le padding latéral de la section ne doit pas le couper.
+
+   D'où deux réglages liés :
+
+   — le conteneur déborde du padding des deux côtés et couvre toute la largeur
+     de la fenêtre : l'aperçu continue au-delà de la marge à droite, et la diapo
+     sortante glisse hors de l'écran à gauche au lieu d'être coupée par le
+     padding ;
+   — la largeur de diapo se calcule donc sur la grille, pas sur le conteneur.
+     Sa boîte de contenu vaut grille + un padding (le débordement gauche étant
+     compensé par un `padding-left`), et 8 colonnes + 7 gouttières valent
+     exactement (2C − 3P) ÷ 3, soit `calc((200% - 3 * var(--pad)) / 3)`.
+
+   La gouttière du carrousel vaut celle de la grille (`gap-5`), et non les 20 px
+   fixes de l'ancienne configuration Swiper : sans ça, l'alignement colonne 9 se
+   décale dès que la taille de base change (12, 14 ou 16 px selon la largeur).
+
+   En dessous de 768 px, une seule diapo pleine largeur — comme à l'origine.
+*/
+.carousel-avis {
+    --pad: var(--spacing-5, 1.25rem);
+
+    gap: var(--pad);
+}
+
+@media (width >= 768px) {
+    .carousel.carousel-avis {
+        /*
+           Le conteneur déborde des deux côtés et occupe toute la largeur de la
+           fenêtre. À droite, l'aperçu file jusqu'au bord. À gauche, la diapo
+           sortante glisse hors de l'écran au lieu d'être tranchée net sur le
+           padding, en plein milieu de la mise en page.
+        */
+        margin-inline: calc(-1 * var(--pad));
+
+        /*
+           Le retrait de la diapo active par rapport au bord est rétabli ici :
+           `padding-left` la repousse, `scroll-padding-left` décale d'autant le
+           point d'ancrage du magnétisme, sans quoi elle viendrait se coller au
+           bord de l'écran à chaque changement.
+        */
+        padding-left: var(--pad);
+        scroll-padding-left: var(--pad);
+    }
+
+    .carousel.carousel-avis > * {
+        flex-basis: calc((200% - 3 * var(--pad)) / 3);
+    }
+
+    /*
+       Équivalent de `slidesOffsetAfter` : espace de fin permettant à la
+       dernière diapo de venir s'aligner en début de conteneur. Il vaut
+       exactement ce que la diapo laisse libre.
+    */
+    .carousel.carousel-avis::after {
+        content: '';
+        flex: 0 0 calc(100% - (200% - 3 * var(--pad)) / 3);
+    }
+}
+
+.carousel-pagination {
+    @apply absolute bottom-5 left-0 w-full z-10 grid grid-cols-4 gap-5 px-5;
+}
+
+.carousel-pagination button {
+    @apply flex items-center px-2 h-4.5 rounded-bl-xs border-l border-b border-[#818181] text-[0.625rem] leading-0;
+    @apply transition-all duration-150 ease-in-out;
+
+    position: relative;
+
+    /* Remplissage de progression de la lecture automatique. */
+    &:before {
+        @apply content-[''] block w-full h-full;
+        @apply flex items-center h-4.5 rounded-bl-xs border-l border-b border-white text-[0.625rem] leading-0;
+
+        @apply absolute top-0 -left-px w-[--progress,0%] transition-all duration-100 ease-in-out;
+
+        opacity: 1;
+    }
+}
+
+.carousel-pagination button:not([aria-current='true']) {
+    @apply text-[#818181];
+
+    &:before {
+        opacity: 0;
+    }
+
+    &:hover {
+        @apply text-white;
+        @apply border-white;
+        @apply cursor-pointer;
+    }
+}
+
+
+
+
+
+
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: #000;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 9999;
+}
+
+.counter {
+    @apply text-white;
+}
+
+body {
+    overflow: hidden;
+
+    &.loaded {
+        overflow: auto;
+    }
+}
+
+/*
+   Navigateurs sans animation liée au défilement : les éléments partent masqués
+   et sont révélés par l'IntersectionObserver de `useScrollReveal`, qui pose
+   `.is-revealed`. Sans ce repli, tout le contenu marqué `.animate` resterait
+   invisible — c'est ce que faisait GSAP dans le thème.
+*/
+@supports not (animation-timeline: scroll()) {
+    .animate {
+        opacity: 0;
+        scale: .99;
+        transform: translateY(50px);
+
+        transition: opacity .6s ease-in-out, scale .6s ease-in-out, transform .6s ease-in-out;
+    }
+
+    .animate.is-revealed {
+        opacity: 1;
+        scale: 1;
+        transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .animate {
+            opacity: 1;
+            scale: 1;
+            transform: none;
+            transition: none;
+        }
+    }
+}
+
+
+
+/* detect if the browser supports the scroll-watcher animation */
+@supports (animation-timeline: scroll()) {
+    .scroll-watcher {
+        height: 2px;
+        position: fixed;
+        top: 0;
+        z-index: 9999;
+        background-color: white;
+        width: 100%;
+        scale: 0 1;
+        transform-origin: left;
+    
+        animation: scroll-watcher linear;
+        animation-timeline: scroll();
+    
+        transition: all .15s ease-in-out;
+    }
+    
+    
+    @keyframes scroll-watcher {
+        to {
+            scale: 1 1;
+        }
+    }
+
+
+    .animate {
+        opacity: 0;
+        scale:.99;
+        transform: translateY(50px);
+
+        animation: fade-in ease-in-out forwards;
+        animation-timeline: view();
+        animation-range: 0 20vh;
+    }
+
+    @keyframes fade-in {
+        to {
+            opacity: 1;
+            scale:1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+    .banner-scroll {
+        transform: translateX(0);
+        width: max-content;
+        
+        animation: banner-scroll ease-in-out;
+        animation-timeline: scroll(root);
+
+        img {
+            width: revert-layer;
+        }
+    }
+
+    @keyframes banner-scroll {
+        to {
+            transform: translateX(-200vh);
+        }
+    }
+}

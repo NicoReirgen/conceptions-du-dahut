@@ -1,0 +1,921 @@
+[
+  {
+    "id": "orion",
+    "name": "Orion",
+    "price": 5900,
+    "steps": [
+      {
+        "key": "presentation",
+        "name": "Présentation et Configuration Initiale",
+        "type": "presentation",
+        "subSteps": [
+          {
+            "key": "presentation.details",
+            "name": "Présentation",
+            "breadcrumb": "orion",
+            "description": "Découvrez votre orion",
+            "type": "presentation",
+            "content": {
+              "title": "Orion",
+              "description": "Orion est un aménagement modulable conçu pour offrir une grande flexibilité et des fonctionnalités pratiques. Disponible en version démontable ou VASP, il s'adapte parfaitement à vos besoins avec un agencement optimisé.",
+              "lien": "/produits/orion",
+              "imgs": [
+                "assets/images/orion/orion_view_1.jpg",
+                "assets/images/orion/orion_view_2.jpg"
+              ]
+            }
+          },
+          {
+            "key": "presentation.selection",
+            "name": "Véhicule",
+            "type": "group",
+            "title": "Choix du véhicule",
+            "fields": [
+              {
+                "type": "select",
+                "key": "vehicule.selection",
+                "placeholder": "Sélection véhicules",
+                "options": [
+                  {
+                    "key": "vehicule.citroen_jumpy",
+                    "name": "Citroën Jumpy",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.ford_transit_custom",
+                    "name": "Ford Transit Custom",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.mercedes_vito",
+                    "name": "Mercedes Vito",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.nissan_primastar",
+                    "name": "Nissan Primastar",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.opel_vivaro",
+                    "name": "Opel Vivaro",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.peugeot_expert",
+                    "name": "Peugeot Expert",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.renault_trafic",
+                    "name": "Renault Trafic",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.toyota_pro_ace",
+                    "name": "Toyota Pro Ace",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.volkswagen_transporter",
+                    "name": "Volkswagen Transporter",
+                    "price": 0
+                  },
+                  {
+                    "key": "vehicule.volkswagen_id_buzz",
+                    "name": "Volkswagen ID Buzz",
+                    "price": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "presentation.chassis",
+            "name": "Chassis",
+            "type": "group",
+            "title": "Taille du chassis",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "vehicule.chassis",
+                "traitementImage": false,
+                "options": [
+                  {
+                    "key": "chassis.court",
+                    "name": "Chassis court",
+                    "price": 0
+                  },
+                  {
+                    "key": "chassis.long",
+                    "name": "Chassis long",
+                    "price": 719
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "customization",
+        "name": "Personnalisation",
+        "type": "customization",
+        "subSteps": [
+          {
+            "key": "mobilier",
+            "name": "Mobilier",
+            "type": "group",
+            "title": "Options de mobilier",
+            "fields": [
+              {
+                "type": "multiple",
+                "key": "mobilier",
+                "traitementImage": true,
+                "hasDefaultOption": true,
+                "options": [
+                  {
+                    "key": "base",
+                    "name": "Base",
+                    "description": "Configuration de base sans mobilier supplémentaire",
+                    "price": 0,
+                    "isDefault": true,
+                    "hidden": true,
+                    "incompatibleWith": [
+                      "tiroirs",
+                      "rangement"
+                    ]
+                  },
+                  {
+                    "key": "tiroirs",
+                    "name": "Tiroirs",
+                    "description": "3 tiroirs à charges lourdes",
+                    "price": 1454,
+                    "incompatibleWith": [
+                      "base"
+                    ]
+                  },
+                  {
+                    "key": "rangement",
+                    "name": "Rangements + plan de travail",
+                    "description": "Rangements optimisés avec plan de travail intégré",
+                    "price": 1763,
+                    "incompatibleWith": [
+                      "base"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "customization.finish",
+            "name": "Finition",
+            "type": "group",
+            "title": "Finitions",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "finitions",
+                "traitementImage": true,
+                "options": [
+                  {
+                    "key": "stratifie",
+                    "name": "Stratifié",
+                    "price": 0,
+                    "subOptionTitle": "Sélectionnez une couleur de finition",
+                    "subOptions": [
+                      {
+                        "key": "gris_galet",
+                        "name": "Gris Galet",
+                        "hexa": "#E1DCD5",
+                        "price": 0
+                      },
+                      {
+                        "key": "bleu_velvet",
+                        "name": "Bleu Velvet",
+                        "hexa": "#4F5B65",
+                        "price": 0
+                      },
+                      {
+                        "key": "verde_lago",
+                        "name": "Verde Lago",
+                        "hexa": "#888972",
+                        "price": 0
+                      }
+                    ]
+                  },
+                  {
+                    "key": "bouleau",
+                    "name": "Bouleau Vernis",
+                    "price": 1345,
+                    "subOptionTitle": "Sélectionnez une couleur de finition",
+                    "subOptions": [
+                      {
+                        "key": "transparent",
+                        "name": "Transparent",
+                        "hexa": "#F5F5F5",
+                        "price": 0
+                      },
+                      {
+                        "key": "palissandre",
+                        "name": "Palissandre",
+                        "hexa": "#8B4513",
+                        "price": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "customization.openings",
+            "name": "Ouvrants",
+            "type": "group",
+            "title": "Ouvrants",
+            "fields": [
+              {
+                "type": "openings",
+                "key": "ouvertures.fenetres",
+                "title": "Fenêtres",
+                "traitementImage": false,
+                "options": {
+                  "main": {
+                    "type": "quantity",
+                    "options": [
+                      {
+                        "key": "ouvertures.fixe",
+                        "name": "Fenêtre fixe",
+                        "description": "Latérale ou arrière",
+                        "price": 366,
+                        "price_comment": "/par fenêtre",
+                        "quantity": {
+                          "min": 0,
+                          "max": 4,
+                          "default": 0
+                        }
+                      },
+                      {
+                        "key": "ouvertures.coulissante",
+                        "name": "Fenêtre coulissante",
+                        "description": "Latérale seulement",
+                        "price": 464,
+                        "price_comment": "/par fenêtre",
+                        "quantity": {
+                          "min": 0,
+                          "max": 1,
+                          "default": 0
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "key": "customization.isolation",
+            "name": "Isolation",
+            "type": "group",
+            "title": "Isolation",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "isolation.main",
+                "title": "Type d'isolation",
+                "traitementImage": false,
+                "options": [
+                  {
+                    "key": "isolation.amaflex",
+                    "name": "Amaflex + Pavatextil",
+                    "price": 859
+                  },
+                  {
+                    "key": "isolation.liege",
+                    "name": "Liège projeté + Pavatextil",
+                    "price": 1679
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "customization.interior_covering",
+            "name": "Habillage intérieur",
+            "type": "group",
+            "title": "Parements",
+            "fields": [
+              {
+                "type": "deep_multiple",
+                "key": "parements",
+                "traitementImage": true,
+                "options": [
+                  {
+                    "key": "peuplier_vernis",
+                    "name": "Peuplier vernis",
+                    "price": 1658,
+                    "disableImageHandling": true,
+                    "deepOptions": [
+                      {
+                        "type": "color_selection",
+                        "key": "couleur",
+                        "title": "Sélectionnez une finition",
+                        "options": [
+                          {
+                            "key": "clair",
+                            "name": "Transparent + Feutrine foncée",
+                            "hexa": "#F5F5DC",
+                            "price": 0
+                          },
+                          {
+                            "key": "palissandre",
+                            "name": "Palissandre + Feutrine claire",
+                            "hexa": "#8B4513",
+                            "price": 0
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "key": "sol",
+                    "name": "Sol",
+                    "price": 0,
+                    "deepOptions": [
+                      {
+                        "type": "unique",
+                        "key": "type",
+                        "options": [
+                          {
+                            "key": "antiderapant",
+                            "name": "Sol antidérapant",
+                            "description": "Revêtement antidérapant",
+                            "price": 474
+                          },
+                          {
+                            "key": "bouleau_vernis",
+                            "name": "Bouleau vernis",
+                            "description": "Sol en bouleau vernis",
+                            "price": 949
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "customization.equipment",
+            "name": "Équipement",
+            "type": "group",
+            "title": "Équipements",
+            "fields": [
+              {
+                "type": "multiple",
+                "key": "equipements",
+                "traitementImage": true,
+                "options": [
+                  {
+                    "key": "housses_mousses",
+                    "name": "Housses & Mousses",
+                    "description": "10cm d'épaisseur 28Kg/m3 - coloris au choix",
+                    "price": 758
+                  },
+                  {
+                    "key": "eau",
+                    "name": "Pack eau",
+                    "description": "Double Jerrican 13L eau propre / Douchette / Evier rétractable",
+                    "price": 502
+                  },
+                  {
+                    "key": "electricite",
+                    "name": "Pack électricité",
+                    "description": "Bluetti AC70P / Bluetti Charger 1 / Spots Leds / Prises USB & 220V",
+                    "price": 2073,
+                    "disableImageHandling": true
+                  },
+                  {
+                    "key": "cuisine",
+                    "name": "Pack cuisine",
+                    "description": "Réchaud Cadac 2 feux / Glacière à compression 20L",
+                    "price": 383,
+                    "disableImageHandling": true
+                  },
+                  {
+                    "key": "confort",
+                    "name": "Pack confort",
+                    "description": "Toilettes Boxio / Rideaux ",
+                    "price": 534,
+                    "disableImageHandling": true
+                  },
+                  {
+                    "key": "chauffage",
+                    "name": "Chauffage",
+                    "description": "Autoterm Air 2D installation intérieure",
+                    "price": 1494,
+                    "disableImageHandling": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "customization.equipment_exterior",
+            "name": "Équipement extérieur",
+            "type": "group",
+            "title": "Équipements extérieurs",
+            "fields": [
+              {
+                "type": "multiple",
+                "key": "equipement_exterieur",
+                "traitementImage": true,
+                "independant": true,
+                "options": [
+                  {
+                    "key": "toit_relevable",
+                    "name": "Toit relevable",
+                    "description": "Toit relevable avec système SCA",
+                    "price": 8485,
+                    "pricePrefix": "à partir de ",
+                    "incompatibleWith": [
+                      "galerie_dahut"
+                    ]
+                  },
+                  {
+                    "key": "bas_de_caisse",
+                    "name": "Bas de caisse",
+                    "description": "Protection du bas de caisse",
+                    "price": 1214
+                  },
+                  {
+                    "key": "auvent_180",
+                    "name": "Auvent 180°",
+                    "description": "droit ou gauche",
+                    "price": 1214,
+                    "incompatibleWith": [
+                      "auvent_270"
+                    ]
+                  },
+                  {
+                    "key": "auvent_270",
+                    "name": "Auvent 270°",
+                    "description": "droit ou gauche",
+                    "price": 1314,
+                    "incompatibleWith": [
+                      "auvent_180"
+                    ]
+                  },
+                  {
+                    "key": "galerie_dahut",
+                    "name": "Galerie complète par le Dahut",
+                    "price": 1490,
+                    "incompatibleWith": [
+                      "toit_relevable"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "summary",
+        "name": "Résumé",
+        "type": "summary"
+      },
+      {
+        "key": "contact",
+        "name": "Formulaire",
+        "type": "contact",
+        "content": {
+          "fields": [
+            {
+              "key": "contact.nom",
+              "name": "nom",
+              "placeholder": "Nom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.prenom",
+              "name": "prenom",
+              "placeholder": "Prénom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.email",
+              "name": "email",
+              "placeholder": "Email *",
+              "type": "email",
+              "required": true
+            },
+            {
+              "key": "contact.telephone",
+              "name": "telephone",
+              "placeholder": "Téléphone *",
+              "type": "tel",
+              "required": true
+            },
+            {
+              "key": "contact.message",
+              "name": "message",
+              "placeholder": "Message pour demande spécifique *",
+              "type": "textarea",
+              "required": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "modular",
+    "name": "Modular",
+    "price": 0,
+    "soonAvailable": true,
+    "steps": [
+      {
+        "key": "presentation",
+        "name": "Présentation et Configuration Initiale",
+        "type": "presentation",
+        "subSteps": [
+          {
+            "key": "presentation.details",
+            "name": "Présentation",
+            "breadcrumb": "modular",
+            "description": "Découvrez votre modular",
+            "type": "presentation",
+            "content": {
+              "title": "Modular",
+              "description": "Modular est un aménagement modulable conçu pour offrir une grande flexibilité et des fonctionnalités pratiques. Disponible en version démontable ou VASP, il s'adapte parfaitement à vos besoins avec un agencement optimisé.",
+              "lien": "/produits/orion",
+              "imgs": [
+                "placeholder-modular-view-1",
+                "placeholder-modular-view-2"
+              ]
+            }
+          },
+          {
+            "key": "presentation.size",
+            "name": "Taille",
+            "type": "group",
+            "title": "Choix de la taille",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "modulaire.taille",
+                "options": [
+                  {
+                    "key": "taille.s",
+                    "name": "Taille S",
+                    "price": 0
+                  },
+                  {
+                    "key": "taille.m",
+                    "name": "Taille M",
+                    "price": 0
+                  },
+                  {
+                    "key": "taille.l",
+                    "name": "Taille L",
+                    "price": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "presentation.version",
+            "name": "Version",
+            "type": "group",
+            "title": "Choix de la version",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "modulaire.version",
+                "options": [
+                  {
+                    "key": "version.basique",
+                    "name": "Basique",
+                    "price": 0
+                  },
+                  {
+                    "key": "version.complete",
+                    "name": "Complet",
+                    "price": 0
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "presentation.color",
+            "name": "Couleur",
+            "type": "group",
+            "title": "Choix de la couleur",
+            "fields": [
+              {
+                "type": "unique",
+                "key": "modulaire.couleur",
+                "options": [
+                  {
+                    "key": "couleur.1",
+                    "name": "Couleur 1",
+                    "price": 0,
+                    "hexa": "#FF6B6B"
+                  },
+                  {
+                    "key": "couleur.2",
+                    "name": "Couleur 2",
+                    "price": 0,
+                    "hexa": "#4ECDC4"
+                  },
+                  {
+                    "key": "couleur.3",
+                    "name": "Couleur 3",
+                    "price": 0,
+                    "hexa": "#45B7D1"
+                  },
+                  {
+                    "key": "couleur.4",
+                    "name": "Couleur 4",
+                    "price": 0,
+                    "hexa": "#96CEB4"
+                  },
+                  {
+                    "key": "couleur.5",
+                    "name": "Couleur 5",
+                    "price": 0,
+                    "hexa": "#FFEAA7"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "summary",
+        "name": "Résumé",
+        "type": "summary"
+      },
+      {
+        "key": "contact",
+        "name": "Formulaire",
+        "type": "contact",
+        "content": {
+          "fields": [
+            {
+              "key": "contact.nom",
+              "name": "nom",
+              "placeholder": "Nom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.prenom",
+              "name": "prenom",
+              "placeholder": "Prénom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.email",
+              "name": "email",
+              "placeholder": "Email *",
+              "type": "email",
+              "required": true
+            },
+            {
+              "key": "contact.telephone",
+              "name": "telephone",
+              "placeholder": "Téléphone *",
+              "type": "tel",
+              "required": true
+            },
+            {
+              "key": "contact.message",
+              "name": "message",
+              "placeholder": "Message pour demande spécifique *",
+              "type": "textarea",
+              "required": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "autres",
+    "name": "Autres véhicules",
+    "price": 0,
+    "soonAvailable": true,
+    "steps": [
+      {
+        "key": "vehicle_selection",
+        "name": "Sélection du véhicule",
+        "type": "group",
+        "title": "Quel type de véhicule souhaitez-vous ?",
+        "fields": [
+          {
+            "type": "deep_unique",
+            "key": "vehicule.categorie",
+            "required": true,
+            "options": [
+              {
+                "key": "daily",
+                "name": "Véhicule du quotidien",
+                "description": "Pour un usage quotidien",
+                "price": 0,
+                "deepOptions": [
+                  {
+                    "type": "unique",
+                    "key": "daily.vehicle",
+                    "options": [
+                      {
+                        "key": "daily.modular",
+                        "name": "Modular",
+                        "price": 0,
+                        "redirect": "modular"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "van",
+                "name": "Fourgonette",
+                "description": "Véhicule compact et maniable",
+                "price": 0,
+                "deepOptions": [
+                  {
+                    "type": "unique",
+                    "key": "van.vehicle",
+                    "options": [
+                      {
+                        "key": "van.modular",
+                        "name": "Modular",
+                        "price": 0,
+                        "redirect": "modular"
+                      },
+                      {
+                        "key": "van.autres",
+                        "name": "Autres",
+                        "price": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "utility",
+                "name": "Utilitaire",
+                "description": "Pour les professionnels",
+                "price": 0,
+                "deepOptions": [
+                  {
+                    "type": "unique",
+                    "key": "utility.vehicle",
+                    "options": [
+                      {
+                        "key": "utility.modular",
+                        "name": "Modular",
+                        "price": 0,
+                        "redirect": "modular"
+                      },
+                      {
+                        "key": "utility.orion",
+                        "name": "Orion",
+                        "price": 0,
+                        "redirect": "orion"
+                      },
+                      {
+                        "key": "utility.autres",
+                        "name": "Autres",
+                        "price": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "4x4",
+                "name": "4x4",
+                "description": "Véhicule tout-terrain",
+                "price": 0,
+                "deepOptions": [
+                  {
+                    "type": "unique",
+                    "key": "4x4.vehicle",
+                    "options": [
+                      {
+                        "key": "4x4.modular",
+                        "name": "Modular",
+                        "price": 0,
+                        "redirect": "modular"
+                      },
+                      {
+                        "key": "4x4.autres",
+                        "name": "Autres",
+                        "price": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "key": "fourgon",
+                "name": "Fourgon",
+                "description": "Grand volume de chargement",
+                "price": 0,
+                "deepOptions": [
+                  {
+                    "type": "unique",
+                    "key": "fourgon.size",
+                    "title": "Choisissez la taille",
+                    "options": [
+                      {
+                        "key": "fourgon.l1h2",
+                        "name": "L1H2",
+                        "price": 0
+                      },
+                      {
+                        "key": "fourgon.l2h2",
+                        "name": "L2H2",
+                        "price": 0
+                      },
+                      {
+                        "key": "fourgon.l3h2h3",
+                        "name": "L3H2/H3",
+                        "price": 0
+                      },
+                      {
+                        "key": "fourgon.grand",
+                        "name": "+ Grand",
+                        "price": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "summary",
+        "name": "Résumé",
+        "type": "summary"
+      },
+      {
+        "key": "contact",
+        "name": "Formulaire",
+        "type": "contact",
+        "content": {
+          "fields": [
+            {
+              "key": "contact.nom",
+              "name": "nom",
+              "placeholder": "Nom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.prenom",
+              "name": "prenom",
+              "placeholder": "Prénom *",
+              "type": "text",
+              "required": true
+            },
+            {
+              "key": "contact.email",
+              "name": "email",
+              "placeholder": "Email *",
+              "type": "email",
+              "required": true
+            },
+            {
+              "key": "contact.telephone",
+              "name": "telephone",
+              "placeholder": "Téléphone *",
+              "type": "tel",
+              "required": true
+            },
+            {
+              "key": "contact.message",
+              "name": "message",
+              "placeholder": "Message pour demande spécifique *",
+              "type": "textarea",
+              "required": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { imageSystem } from '~~/app/composables/useVehicleImages'
+import { normalizeValue } from '~~/app/composables/images/optionsImage'
+import { getSelectedValues } from '~~/app/composables/images/valeursImage'
 
 /*
    Traduction d'une sélection en segment de chemin d'image.
@@ -14,25 +15,25 @@ import { imageSystem } from '~~/app/composables/useVehicleImages'
 */
 
 const valeurs = (value, type, fieldInfo = null) =>
-    imageSystem.getSelectedValues(value, type, fieldInfo)
+    getSelectedValues(value, type, fieldInfo)
 
 /** Enveloppe une liste d'options dans la forme attendue par la fonction. */
 const infos = (options) => ({ key: 'finitions', field: { options } })
 
 describe('normalizeValue', () => {
     it('met en minuscules et remplace ce qui n’est pas alphanumérique', () => {
-        expect(imageSystem.normalizeValue('Bouleau Vernis')).toBe('bouleau_vernis')
-        expect(imageSystem.normalizeValue('Auvent 180°')).toBe('auvent_180_')
+        expect(normalizeValue('Bouleau Vernis')).toBe('bouleau_vernis')
+        expect(normalizeValue('Auvent 180°')).toBe('auvent_180_')
     })
 
     it('conserve les tirets et les soulignés', () => {
-        expect(imageSystem.normalizeValue('bas_de-caisse')).toBe('bas_de-caisse')
+        expect(normalizeValue('bas_de-caisse')).toBe('bas_de-caisse')
     })
 
     it('rend une chaîne vide sur une valeur absente', () => {
-        expect(imageSystem.normalizeValue('')).toBe('')
-        expect(imageSystem.normalizeValue(null)).toBe('')
-        expect(imageSystem.normalizeValue(undefined)).toBe('')
+        expect(normalizeValue('')).toBe('')
+        expect(normalizeValue(null)).toBe('')
+        expect(normalizeValue(undefined)).toBe('')
     })
 })
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { imageSystem } from '~~/app/composables/useVehicleImages'
+import { findDeepestInBranch, findDeepestInSubBranch } from '~~/app/composables/images/feuillesImage'
 
 /*
    Recherche des « feuilles » de sélection : les options les plus profondes
@@ -15,7 +15,7 @@ import { imageSystem } from '~~/app/composables/useVehicleImages'
 */
 
 const trouver = (deepOptions, selection, mainKey = 'finitions') =>
-    imageSystem.findDeepestInBranch(deepOptions, selection, mainKey)
+    findDeepestInBranch(deepOptions, selection, mainKey)
 
 describe('findDeepestInBranch', () => {
     it('ne rend rien sans sélection', () => {
@@ -147,7 +147,7 @@ describe('findDeepestInSubBranch', () => {
     */
     it('rend la valeur retenue, sans la préfixer', () => {
         const options = [{ key: 'finition', type: 'color_selection', options: [{ key: 'mat' }] }]
-        expect(imageSystem.findDeepestInSubBranch(options, { 'a.b.finition': 'mat' }, 'a.b'))
+        expect(findDeepestInSubBranch(options, { 'a.b.finition': 'mat' }, 'a.b'))
             .toEqual(['mat'])
     })
 
@@ -157,11 +157,11 @@ describe('findDeepestInSubBranch', () => {
             type: 'color_selection',
             options: [{ key: 'mat', disableImageHandling: true }],
         }]
-        expect(imageSystem.findDeepestInSubBranch(options, { 'a.b.finition': 'mat' }, 'a.b')).toEqual([])
+        expect(findDeepestInSubBranch(options, { 'a.b.finition': 'mat' }, 'a.b')).toEqual([])
     })
 
     it('ne traite que les coloris', () => {
         const options = [{ key: 'taille', type: 'unique', options: [{ key: 'L1' }] }]
-        expect(imageSystem.findDeepestInSubBranch(options, { 'a.b.taille': 'L1' }, 'a.b')).toEqual([])
+        expect(findDeepestInSubBranch(options, { 'a.b.taille': 'L1' }, 'a.b')).toEqual([])
     })
 })

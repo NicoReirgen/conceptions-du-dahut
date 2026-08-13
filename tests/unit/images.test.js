@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { imageSystem } from '~~/app/composables/useVehicleImages'
+import { getFolderName } from '~~/app/composables/images/optionsImage'
+import { detectImageFields } from '~~/app/composables/images/champsImage'
+import { getBaseImage } from '~~/app/composables/images/cheminsImage'
 import { configuratorSrcset, CONFIGURATOR_WIDTHS } from '~~/app/utils/imageVariants'
 
 /*
@@ -17,8 +19,8 @@ import { configuratorSrcset, CONFIGURATOR_WIDTHS } from '~~/app/utils/imageVaria
 
 describe('nom de dossier', () => {
     it('reprend la clé telle quelle', () => {
-        expect(imageSystem.getFolderName('mobilier')).toBe('mobilier')
-        expect(imageSystem.getFolderName('equipement_exterieur')).toBe('equipement_exterieur')
+        expect(getFolderName('mobilier')).toBe('mobilier')
+        expect(getFolderName('equipement_exterieur')).toBe('equipement_exterieur')
     })
 })
 
@@ -36,12 +38,12 @@ describe('champs participant aux images', () => {
     ]
 
     it('ne retient que les champs marqués', () => {
-        const trouves = imageSystem.detectImageFields(etapes).map((f) => f.key)
+        const trouves = detectImageFields(etapes).map((f) => f.key)
         expect(trouves).toEqual(['mobilier', 'finitions'])
     })
 
     it('conserve l’ordre de déclaration — il détermine le chemin', () => {
-        const trouves = imageSystem.detectImageFields(etapes)
+        const trouves = detectImageFields(etapes)
         expect(trouves[0].order).toBeLessThan(trouves[1].order)
     })
 
@@ -49,13 +51,13 @@ describe('champs participant aux images', () => {
         const groupe = [{ subSteps: [{ fields: [
             { key: 'bloc', type: 'group', fields: [{ key: 'interieur', traitementImage: true }] },
         ] }] }]
-        expect(imageSystem.detectImageFields(groupe).map((f) => f.key)).toContain('interieur')
+        expect(detectImageFields(groupe).map((f) => f.key)).toContain('interieur')
     })
 })
 
 describe('image de repli', () => {
     it('désigne un fichier du dossier du véhicule', () => {
-        const base = imageSystem.getBaseImage('orion')
+        const base = getBaseImage('orion')
         expect(base).toContain('assets/images/orion/')
         expect(base).toMatch(/\.(jpe?g|png)$/)
     })

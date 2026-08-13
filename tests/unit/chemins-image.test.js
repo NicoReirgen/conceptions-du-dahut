@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { imageSystem } from '~~/app/composables/useVehicleImages'
+import { describe, it, expect } from 'vitest'
+import { champsRetenus } from '~~/app/composables/images/champsImage'
+import { buildImageUrl, generateFallbackUrls } from '~~/app/composables/images/cheminsImage'
+import { getLastFallbacks, getVehicleImageSync, repliSuivant } from '~~/app/composables/useVehicleImages'
 
 /*
    Composition des chemins d'aperçu.
@@ -34,7 +36,7 @@ const FINITIONS = {
 
 const ETAPES = [{ subSteps: [{ fields: [MOBILIER] }, { fields: [FINITIONS] }] }]
 
-const chemin = (selections, etapes = ETAPES) => imageSystem.buildImageUrl(selections, 'orion', etapes)
+const chemin = (selections, etapes = ETAPES) => buildImageUrl(selections, 'orion', etapes)
 
 describe('chemin de l’aperçu', () => {
     it('retombe sur l’image de base sans sélection', () => {
@@ -42,7 +44,7 @@ describe('chemin de l’aperçu', () => {
     })
 
     it('retombe sur l’image de base sans étapes', () => {
-        expect(imageSystem.buildImageUrl({ mobilier: ['tiroirs'] }, 'orion', null))
+        expect(buildImageUrl({ mobilier: ['tiroirs'] }, 'orion', null))
             .toBe('/assets/images/orion/orion-base.jpg')
     })
 
@@ -90,13 +92,10 @@ describe('chemin de l’aperçu', () => {
 })
 
 describe('chemins de repli', () => {
-    const champs = (selections, etapes = ETAPES) => imageSystem.extractValidatedFields(
-        selections,
-        imageSystem.detectImageFields(etapes)
-    )
+    const champs = (selections, etapes = ETAPES) => champsRetenus(selections, etapes)
 
     it('retire les sélections une à une, en finissant par l’image de base', () => {
-        const replis = imageSystem.generateFallbackUrls(
+        const replis = generateFallbackUrls(
             champs({ mobilier: ['tiroirs'], finitions: { main: 'stratifie', sub: 'bleu_velvet' } }),
             'orion'
         )
@@ -106,7 +105,7 @@ describe('chemins de repli', () => {
     })
 
     it('ne propose que l’image de base quand rien n’est retenu', () => {
-        expect(imageSystem.generateFallbackUrls([], 'orion')).toEqual(['/assets/images/orion/orion-base.jpg'])
+        expect(generateFallbackUrls([], 'orion')).toEqual(['/assets/images/orion/orion-base.jpg'])
     })
 })
 
@@ -119,24 +118,34 @@ describe('chemins de repli', () => {
    si bien que deux replis en échec se renvoyaient la balle indéfiniment.
 */
 describe('repli suivant', () => {
-    const replis = [
-        '/assets/images/orion/mobilier/tiroirs.jpg',
-        '/assets/images/orion/orion-base.jpg',
-    ]
+    /*
+       La liste vient de la dernière résolution, comme dans le composant — et
+       elle ne contient pas l'image demandée, seulement ce vers quoi se rabattre.
+    */
+    const replis = () => {
+        getVehicleImageSync(
+            { mobilier: ['tiroirs'], finitions: { main: 'stratifie', sub: 'bleu_velvet' } },
+            'orion',
+            ETAPES
+        )
 
-    beforeEach(() => {
-        imageSystem.lastGeneratedFallbacks = replis
-    })
+        return getLastFallbacks()
+    }
 
     it('propose le premier repli quand rien n’a été essayé', () => {
-        expect(imageSystem.repliSuivant([])).toBe(replis[0])
+        const [premier] = replis()
+
+        expect(premier).toBe('/assets/images/orion/mobilier/tiroirs.jpg')
+        expect(repliSuivant([])).toBe(premier)
     })
 
     it('passe au suivant une fois le premier en échec', () => {
-        expect(imageSystem.repliSuivant([replis[0]])).toBe(replis[1])
+        const [premier, second] = replis()
+
+        expect(repliSuivant([premier])).toBe(second)
     })
 
     it('ne rend rien quand tout a échoué, plutôt que de tourner en rond', () => {
-        expect(imageSystem.repliSuivant(replis)).toBeNull()
+        expect(repliSuivant(replis())).toBeNull()
     })
 })

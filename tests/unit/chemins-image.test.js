@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { imageSystem } from '~~/app/composables/useVehicleImages'
 
 /*
@@ -107,5 +107,36 @@ describe('chemins de repli', () => {
 
     it('ne propose que l’image de base quand rien n’est retenu', () => {
         expect(imageSystem.generateFallbackUrls([], 'orion')).toEqual(['/assets/images/orion/orion-base.jpg'])
+    })
+})
+
+/*
+   Le repli d'aperçu.
+
+   L'existence d'un fichier n'est plus vérifiée avant de l'afficher : c'est
+   l'échec de chargement qui fait avancer dans la liste. Encore faut-il ne pas
+   revenir sur ses pas — l'ancienne version écartait seulement l'image courante,
+   si bien que deux replis en échec se renvoyaient la balle indéfiniment.
+*/
+describe('repli suivant', () => {
+    const replis = [
+        '/assets/images/orion/mobilier/tiroirs.jpg',
+        '/assets/images/orion/orion-base.jpg',
+    ]
+
+    beforeEach(() => {
+        imageSystem.lastGeneratedFallbacks = replis
+    })
+
+    it('propose le premier repli quand rien n’a été essayé', () => {
+        expect(imageSystem.repliSuivant([])).toBe(replis[0])
+    })
+
+    it('passe au suivant une fois le premier en échec', () => {
+        expect(imageSystem.repliSuivant([replis[0]])).toBe(replis[1])
+    })
+
+    it('ne rend rien quand tout a échoué, plutôt que de tourner en rond', () => {
+        expect(imageSystem.repliSuivant(replis)).toBeNull()
     })
 })

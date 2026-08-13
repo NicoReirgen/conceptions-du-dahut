@@ -611,80 +611,25 @@ export const imageSystem = {
         return [...new Set(replis)];
     },
     
-    /**
-     * VÉRIFIER L'EXISTENCE D'UNE IMAGE AVEC FALLBACK PROGRESSIF
-     */
-    async checkImageExistsWithFallback(selectedOptions, vehicleId, vehicleSteps) {
-        // Une seule détection des champs : elle servait deux fois par appel.
-        const retenus = this.champsRetenus(selectedOptions, vehicleSteps);
-
-        const targetUrl = this.cheminPour(retenus, vehicleId);
-        const fallbackUrls = this.generateFallbackUrls(retenus, vehicleId);
-
-        // Créer la liste complète des URLs à tester (principale en premier)
-        const urlsToTest = [targetUrl, ...fallbackUrls];
-
-        this.log(`Test de ${urlsToTest.length} URLs: ${urlsToTest.join(', ')}`);
-        
-        // Tester chaque URL jusqu'à en trouver une qui existe
-        for (const url of urlsToTest) {
-            const exists = await this.checkImageExists(url);
-            if (exists) {
-                this.log(`Image trouvée: ${url}`);
-                return url;
-            }
-        }
-        
-        // Aucune image trouvée, retourner l'image de base
-        const baseImage = this.getBaseImage(vehicleId);
-        this.log(`Aucune image trouvée, utilisation de l'image de base: ${baseImage}`);
-        return baseImage;
-    },
-    
     /*
-       Existence d'une image, éprouvée en la chargeant.
+       Le repli suivant, parmi ceux qui n'ont pas encore échoué.
 
-       Hors navigateur — rendu serveur, prérendu — rien ne permet de le savoir,
-       et on ne le prétend pas : la recherche se termine alors sur l'image du
-       véhicule, que le client affinera après montage.
-
-       Ce cas était traité par une simulation qui répondait « vrai » pour les
-       chemins contenant `mobilier`, « faux » pour deux coloris nommés en dur,
-       et tirait le reste à pile ou face — `Math.random()` dans le rendu d'une
-       page prégénérée.
+       Le composant se souvient de ce qu'il a essayé : sans cette mémoire, il
+       repartait sur le premier de la liste dès qu'il n'était plus l'image
+       courante, et deux replis en échec se renvoyaient la balle sans fin.
     */
-    async checkImageExists(imageUrl) {
-        if (typeof window === 'undefined' || !window.Image) return false;
+    repliSuivant(deja = []) {
+        return this.getLastFallbacks().find((url) => !deja.includes(url)) || null;
+    },
 
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = imageUrl;
-            setTimeout(() => resolve(false), 3000);
-        });
-    },
-    
     /**
-     * FONCTION PRINCIPALE AVEC FALLBACK HIÉRARCHIQUE
-     */
-    async getVehicleImage(selectedOptions, vehicleId, vehicleSteps, currentStepIndex = 0) {
-        try {
-            // Utiliser la nouvelle logique de fallback hiérarchique
-            const finalUrl = await this.checkImageExistsWithFallback(selectedOptions, vehicleId, vehicleSteps);
-            
-            // Sauvegarder comme image validée
-            this.saveValidatedImage(finalUrl, currentStepIndex);
-            
-            return finalUrl;
-        } catch (error) {
-            this.log(`Erreur: ${error.message}`, 'error');
-            return this.getBaseImage(vehicleId);
-        }
-    },
-    
-    /**
-     * VERSION SYNCHRONE AVEC FALLBACK HIÉRARCHIQUE
+     * URL D'APERÇU, AVEC SES REPLIS PRÉPARÉS
+     *
+     * Il n'y a plus de version asynchrone. Elle chargeait l'image entière pour
+     * savoir si elle existait — 41 Ko de JPEG par changement d'option, jamais
+     * affichés, avant les 26 Ko d'AVIF réellement montrés. C'est l'échec de
+     * chargement qui déclenche désormais le repli, et il ne coûte rien quand le
+     * fichier est là.
      */
     getVehicleImageSync(selectedOptions, vehicleId, vehicleSteps, currentStepIndex = 0) {
         // Une seule détection des champs, d'où sortent l'URL et ses replis : le
@@ -799,9 +744,9 @@ export const imageSystem = {
 // EXPORT POUR COMPATIBILITÉ
 export const useVehicleImages = () => {
     return {
-        getVehicleImage: imageSystem.getVehicleImage.bind(imageSystem),
         getVehicleImageSync: imageSystem.getVehicleImageSync.bind(imageSystem),
         getLastFallbacks: imageSystem.getLastFallbacks.bind(imageSystem),
+        repliSuivant: imageSystem.repliSuivant.bind(imageSystem),
         saveValidatedImage: imageSystem.saveValidatedImage.bind(imageSystem),
         clearHistory: imageSystem.clearHistory.bind(imageSystem),
         debugState: imageSystem.debugState.bind(imageSystem)

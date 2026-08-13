@@ -137,10 +137,13 @@ const isFormVisible = ref(true);
 const forceImageRefresh = ref(0);
 
 // Utiliser le nouveau système d'images universel
-const { getVehicleImageSync, getVehicleImage, getLastFallbacks } = useVehicleImages();
+const { getVehicleImageSync, repliSuivant } = useVehicleImages();
 
 // Référence réactive pour l'image de prévisualisation
 const finalImageUrl = ref('');
+
+/** Dernier recours, quand même les replis manquent. */
+const IMAGE_DE_BASE = '/assets/images/orion/orion-base.jpg';
 
 // Fonction pour basculer la visibilité du formulaire sur mobile
 const toggleFormVisibility = () => {
@@ -196,14 +199,34 @@ onMounted(async () => {
 	window.addEventListener('vehicle-image-updated', handleVehicleImageUpdate);
 });
 
+/*
+   Repli d'aperçu.
+
+   Le système d'images vérifiait auparavant l'existence du fichier avant de
+   l'afficher, en le téléchargeant entièrement — 41 Ko de JPEG par changement
+   d'option, jamais montrés, avant les 26 Ko d'AVIF réellement affichés. C'est
+   désormais l'échec de chargement qui déclenche le repli : gratuit quand le
+   fichier est là, et `<VanImage>` portait déjà le `@error` qu'il fallait.
+
+   La mémoire des tentatives est indispensable : l'ancienne version écartait
+   simplement l'image courante de la liste, si bien que deux replis en échec se
+   renvoyaient la balle indéfiniment.
+*/
+const repliesEssayes = new Set();
+
 const handlePreviewImageError = () => {
-    const fallbackCandidates = getLastFallbacks().filter((url) => url !== finalImageUrl.value);
-    if (fallbackCandidates.length > 0) {
-        finalImageUrl.value = fallbackCandidates[0];
+    repliesEssayes.add(finalImageUrl.value);
+
+    const suivant = repliSuivant([...repliesEssayes]);
+
+    if (suivant) {
+        finalImageUrl.value = suivant;
         return;
     }
 
-    finalImageUrl.value = '/assets/images/orion/orion-base.jpg';
+    if (!repliesEssayes.has(IMAGE_DE_BASE)) {
+        finalImageUrl.value = IMAGE_DE_BASE;
+    }
 };
 
 const canProceed = computed(() => {
@@ -268,37 +291,16 @@ watch(selectedOptions, () => {
    le nombre de fois : c'est le genre de montage qui tient jusqu'au jour où il
    ne tient plus.
 
-   Réécrit en observateur, ce qu'il a toujours été. Le jeton de course règle au
-   passage un défaut qui existait déjà : deux résolutions asynchrones pouvaient
-   s'écraser dans le désordre, la plus lente ayant le dernier mot.
+   Réécrit en observateur, ce qu'il a toujours été. Il n'a plus rien
+   d'asynchrone depuis que la vérification d'existence a disparu : le jeton de
+   course qui départageait deux résolutions concurrentes n'a plus d'objet.
 */
-let derniereDemande = 0;
+const rafraichirApercu = () => {
+    repliesEssayes.clear();
 
-const rafraichirApercu = async () => {
-    const demande = ++derniereDemande;
-
-    if (!selectedVehicle.value) {
-        finalImageUrl.value = getVehicleImageSync({}, 'orion', []);
-        return;
-    }
-
-    const vehicleId = selectedVehicle.value.id;
-
-    // La version synchrone donne tout de suite une image plausible ; la version
-    // asynchrone la corrige si le fichier attendu n'existe pas.
-    const immediate = getVehicleImageSync(selectedOptions.value, vehicleId, vehicleSteps.value);
-    finalImageUrl.value = immediate;
-
-    try {
-        const verifiee = await getVehicleImage(selectedOptions.value, vehicleId, vehicleSteps.value);
-
-        // Une sélection plus récente a pris la main entre-temps : on se retire.
-        if (demande !== derniereDemande) return;
-
-        if (verifiee !== immediate) finalImageUrl.value = verifiee;
-    } catch (error) {
-        console.error("Vérification de l'image d'aperçu impossible :", error);
-    }
+    finalImageUrl.value = selectedVehicle.value
+        ? getVehicleImageSync(selectedOptions.value, selectedVehicle.value.id, vehicleSteps.value)
+        : getVehicleImageSync({}, 'orion', []);
 };
 
 /*

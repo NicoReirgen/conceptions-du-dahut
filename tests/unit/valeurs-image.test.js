@@ -147,3 +147,58 @@ describe('select et types non prévus', () => {
         expect(valeurs('Valeur Libre', 'inconnu')).toBe('valeur_libre')
     })
 })
+
+/*
+   La combinaison par défaut.
+
+   Stratifié + Gris Galet est le rendu de départ du configurateur : ce sont les
+   images sans segment de finition. Faute de le dire, le système composait un
+   chemin qui n'existe pas, récoltait un 404, puis se rabattait sur la bonne
+   image — atteinte par l'échec.
+*/
+describe('finition par défaut', () => {
+    const champ = (marquages) => ({
+        key: 'finitions',
+        type: 'unique',
+        field: {
+            options: [
+                {
+                    key: 'stratifie',
+                    ...marquages.principale,
+                    subOptions: [
+                        { key: 'gris_galet', ...marquages.coloris },
+                        { key: 'bleu_velvet' },
+                    ],
+                },
+                { key: 'bouleau', subOptions: [{ key: 'transparent', isDefault: true }] },
+            ],
+        },
+    })
+
+    const parDefaut = champ({ principale: { isDefault: true }, coloris: { isDefault: true } })
+
+    it('n’ajoute aucun segment', () => {
+        expect(valeurs({ main: 'stratifie', sub: 'gris_galet' }, 'unique', parDefaut)).toBeNull()
+    })
+
+    it('laisse les autres coloris composer leur chemin', () => {
+        expect(valeurs({ main: 'stratifie', sub: 'bleu_velvet' }, 'unique', parDefaut))
+            .toBe('stratifie-bleu_velvet')
+    })
+
+    /*
+       Les deux niveaux sont exigés : un coloris marqué sous une option qui ne
+       l'est pas ne doit pas faire disparaître cette option du chemin.
+    */
+    it('exige que l’option principale soit elle aussi celle par défaut', () => {
+        expect(valeurs({ main: 'bouleau', sub: 'transparent' }, 'unique', parDefaut))
+            .toBe('bouleau-transparent')
+    })
+
+    it('ne change rien tant que rien n’est marqué', () => {
+        const sansMarquage = champ({ principale: {}, coloris: {} })
+
+        expect(valeurs({ main: 'stratifie', sub: 'gris_galet' }, 'unique', sansMarquage))
+            .toBe('stratifie-gris_galet')
+    })
+})

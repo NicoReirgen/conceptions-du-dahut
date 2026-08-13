@@ -183,13 +183,15 @@
                     "key": "stratifie",
                     "name": "Stratifié",
                     "price": 0,
+                    "isDefault": true,
                     "subOptionTitle": "Sélectionnez une couleur de finition",
                     "subOptions": [
                       {
                         "key": "gris_galet",
                         "name": "Gris Galet",
                         "hexa": "#E1DCD5",
-                        "price": 0
+                        "price": 0,
+                        "isDefault": true
                       },
                       {
                         "key": "bleu_velvet",

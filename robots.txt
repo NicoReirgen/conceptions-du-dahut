@@ -1,2 +1,4 @@
 User-Agent: *
 Disallow:
+
+Sitemap: https://nicoreirgen.github.io/conceptions-du-dahut/sitemap.xml

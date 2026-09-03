@@ -3,7 +3,7 @@
         <h1 class="pointer-events-none text-[85.5vmax] absolute top-1/2 left-1/2 -translate-1/2 rotate-17">{{ error.statusCode }}</h1>
 
         <NuxtLink class="self-end" to="/">
-            <img width="190" height="66" src="/assets/svg/logo_full.svg" alt="Les Conceptions du Dahut">
+            <img width="190" height="66" :src="cheminPublic('/assets/svg/logo_full.svg')" alt="Les Conceptions du Dahut">
         </NuxtLink>
 
         <div>

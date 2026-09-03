@@ -110,7 +110,7 @@
                         width="124"
                         height="55"
                         class="w-31 h-auto rounded-none"
-                        src="/assets/svg/logo_textuel.svg"
+                        :src="cheminPublic('/assets/svg/logo_textuel.svg')"
                         alt="Les Conceptions du Dahut"
                     >
                 </picture>

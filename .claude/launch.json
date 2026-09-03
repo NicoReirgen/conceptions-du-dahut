@@ -16,7 +16,8 @@
       "runtimeExecutable": "node",
       "runtimeArgs": [
         "scripts/serve-static.mjs",
-        "3010"
+        "3010",
+        ".output/souschemin"
       ],
       "port": 3010
     }

@@ -1,11 +1,11 @@
 <template>
     <div v-if="visible" class="preloader flex" :class="{ 'preloader-done': done }" aria-hidden="true">
         <div class="logoPicto flex-1">
-            <img class="w-15 h-15 rounded-none" width="60" height="60" src="/assets/svg/logo_picto.svg" alt="">
+            <img class="w-15 h-15 rounded-none" width="60" height="60" :src="cheminPublic('/assets/svg/logo_picto.svg')" alt="">
         </div>
 
         <div class="logoText flex-1 mr-[13.5vw]">
-            <img class="rounded-none" width="124" height="55" src="/assets/svg/logo_textuel.svg" alt="">
+            <img class="rounded-none" width="124" height="55" :src="cheminPublic('/assets/svg/logo_textuel.svg')" alt="">
         </div>
 
         <div class="counter">{{ String(count).padStart(3, '0') }}</div>

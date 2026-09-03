@@ -69,7 +69,11 @@ const posterSrc = computed(() => {
         return undefined
     }
 
-    return /\.(jpe?g|png)$/i.test(src) ? `${src.replace(/\.(jpe?g|png)$/i, '')}@1280.webp` : src
+    const chemin = cheminPublic(src)
+
+    return /\.(jpe?g|png)$/i.test(chemin)
+        ? `${chemin.replace(/\.(jpe?g|png)$/i, '')}@1280.webp`
+        : chemin
 })
 
 /**
@@ -83,7 +87,7 @@ const sources = computed(() => {
         return {}
     }
 
-    const base = src.replace(/\.(mp4|mov|webm)$/i, '')
+    const base = cheminPublic(src).replace(/\.(mp4|mov|webm)$/i, '')
 
     return { av1: `${base}.av1.mp4`, h264: `${base}.h264.mp4` }
 })

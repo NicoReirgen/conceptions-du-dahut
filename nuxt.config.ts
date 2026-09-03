@@ -5,6 +5,11 @@ import tailwindcss from '@tailwindcss/vite'
 const wpBaseUrl =
   process.env.NUXT_PUBLIC_WP_BASE_URL || 'http://les-conceptions-du-dahut.withni.local'
 
+// Sous-chemin de publication : « / » en local, « /dahut/ » sur GitHub Pages.
+// Les fichiers de `public/` ne passent pas par la réécriture de Nuxt : les
+// chemins écrits à la main dans la configuration doivent le porter eux-mêmes.
+const baseURL = process.env.NUXT_APP_BASE_URL || '/'
+
 /**
  * Liste des pages à prégénérer, demandée à WordPress.
  *
@@ -59,7 +64,7 @@ export default defineNuxtConfig({
           rel: 'preload',
           as: 'font',
           type: 'font/woff2',
-          href: '/assets/fonts/Switzer-Variable.woff2',
+          href: `${baseURL}assets/fonts/Switzer-Variable.woff2`,
           crossorigin: 'anonymous',
         },
       ],

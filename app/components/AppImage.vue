@@ -4,7 +4,7 @@
         <source v-if="variants" type="image/webp" :srcset="srcset('webp')" :sizes="sizes">
         <img
             v-bind="$attrs"
-            :src="media.src"
+            :src="cheminPublic(media.src)"
             :alt="alt"
             :width="media.width"
             :height="media.height"
@@ -92,10 +92,20 @@ const WIDTHS = [640, 1280, 1920]
 // quels est déjà optimal.
 const variants = computed(() => /\.(jpe?g|png)$/i.test(props.media?.src || ''))
 
+/*
+   La règle de `scripts/fetch-media.mjs` : une largeur supérieure à l'original
+   n'est pas produite, sauf la plus petite, qui sert de vignette à tout le
+   monde. Le filtre doit la répéter à l'identique — il tolérait auparavant un
+   agrandissement de moitié, et proposait donc 22 variantes qui n'existaient
+   pas. Une <source> en échec ne retombe pas sur le <img> : l'image ne
+   s'affichait pas du tout.
+*/
 const srcset = (format) => {
-    const base = String(props.media.src).replace(/\.(jpe?g|png)$/i, '')
+    const base = cheminPublic(String(props.media.src)).replace(/\.(jpe?g|png)$/i, '')
 
-    return WIDTHS.filter((width) => !props.media.width || width <= props.media.width * 1.5)
+    return WIDTHS.filter(
+        (width) => !props.media.width || width <= props.media.width || width === WIDTHS[0]
+    )
         .map((width) => `${base}@${width}.${format} ${width}w`)
         .join(', ')
 }

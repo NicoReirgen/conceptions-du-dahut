@@ -9,14 +9,17 @@
  * Un simple `python -m http.server` ne compresse rien et donnerait un poids
  * transféré deux fois supérieur à la réalité.
  *
- *   node scripts/serve-static.mjs [port]
+ * Le second argument sert un sous-dossier de racine : indispensable pour
+ * répéter le déploiement sous un sous-chemin, où le site vit sous /dahut/.
+ *
+ *   node scripts/serve-static.mjs [port] [racine]
  */
 import { createServer } from 'node:http'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import path from 'node:path'
 
-const ROOT = path.resolve(import.meta.dirname, '../.output/public')
 const PORT = Number(process.argv[2]) || 3010
+const ROOT = path.resolve(import.meta.dirname, '..', process.argv[3] || '.output/public')
 
 const TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -50,9 +53,19 @@ createServer((request, response) => {
     }
 
     if (!existsSync(filePath)) {
-        const fallback = path.join(ROOT, '404.html')
+        const repli = [path.join(ROOT, '404.html'), path.join(ROOT, 'index.html')].find(existsSync)
+
         response.writeHead(404, { 'content-type': TYPES['.html'] })
-        createReadStream(existsSync(fallback) ? fallback : path.join(ROOT, 'index.html')).pipe(response)
+
+        // Servi sous un sous-chemin, la racine ne porte aucune page. Sans ce
+        // repli, le flux introuvable émettait une erreur non gérée qui tuait
+        // le serveur au premier appel de /.
+        if (repli) {
+            createReadStream(repli).pipe(response)
+        } else {
+            response.end('Introuvable')
+        }
+
         return
     }
 
@@ -61,7 +74,7 @@ createServer((request, response) => {
 
     // Les fichiers versionnés par empreinte peuvent être mis en cache
     // indéfiniment ; les pages, non.
-    headers['cache-control'] = url.pathname.startsWith('/_nuxt/')
+    headers['cache-control'] = url.pathname.includes('/_nuxt/')
         ? 'public, max-age=31536000, immutable'
         : extension === '.html'
           ? 'public, max-age=0, must-revalidate'

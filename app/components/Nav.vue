@@ -1,7 +1,7 @@
 <template>
     <nav class="flex justify-between w-full px-5 fixed top-7.5 z-10">
         <NuxtLink class="hidden md:block" to="/" aria-label="Accueil">
-            <img class="h-auto" width="190" height="66" src="/assets/svg/logo_full.svg" alt="Les Conceptions du Dahut">
+            <img class="h-auto" width="190" height="66" :src="cheminPublic('/assets/svg/logo_full.svg')" alt="Les Conceptions du Dahut">
         </NuxtLink>
 
         <div
@@ -24,7 +24,7 @@
                 </NuxtLink>
 
                 <NuxtLink class="block md:hidden" to="/" aria-label="Accueil">
-                    <img class="w-5 h-auto rounded-none" width="20" height="20" src="/assets/svg/logo_picto.svg" alt="">
+                    <img class="w-5 h-auto rounded-none" width="20" height="20" :src="cheminPublic('/assets/svg/logo_picto.svg')" alt="">
                 </NuxtLink>
 
                 <button

@@ -1,6 +1,6 @@
 <template>
 	<a class="logoLink" href="/" target="_blank">
-		<img src="/assets/svg/logo_full.svg" alt="Les Conceptions du Dahut" />
+		<img :src="cheminPublic('/assets/svg/logo_full.svg')" alt="Les Conceptions du Dahut" />
 	</a>
     <VanImage
 		:src="finalImageUrl"
@@ -143,7 +143,7 @@ const { getVehicleImageSync, repliSuivant } = useVehicleImages();
 const finalImageUrl = ref('');
 
 /** Dernier recours, quand même les replis manquent. */
-const IMAGE_DE_BASE = '/assets/images/orion/orion-base.jpg';
+const IMAGE_DE_BASE = cheminPublic('/assets/images/orion/orion-base.jpg');
 
 // Fonction pour basculer la visibilité du formulaire sur mobile
 const toggleFormVisibility = () => {

@@ -9,6 +9,10 @@
 export const useContentSeo = (content) => {
     const seo = computed(() => unref(content)?.seo || {})
 
+    // Captée ici : unhead résout les balises hors du contexte Nuxt, où
+    // useRuntimeConfig() n'a plus d'instance à interroger.
+    const base = useRuntimeConfig().app.baseURL
+
     const meta = computed(() => {
         const tags = []
         const { description, og, noindex, nofollow } = seo.value
@@ -31,7 +35,7 @@ export const useContentSeo = (content) => {
             tags.push({ property: 'og:description', content: og.description })
         }
         if (og?.image) {
-            tags.push({ property: 'og:image', content: og.image })
+            tags.push({ property: 'og:image', content: cheminPublic(og.image, base) })
         }
 
         tags.push({ property: 'og:type', content: 'website' })

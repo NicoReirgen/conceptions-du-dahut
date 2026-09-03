@@ -6,7 +6,7 @@
     "node": "20.x"
   },
   "scripts": {
-    "assets": "npm run images && npm run fonts && npm run media && npm run video",
+    "assets": "npm run images && npm run fonts && npm run media && npm run video && npm run sprite",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "dev:clean": "pkill -f \"[n]uxt dev\" || true; rm -rf .nuxt node_modules/.cache/nuxt; nuxt dev",
@@ -19,6 +19,7 @@
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
     "publier": "bash scripts/publier.sh",
+    "sprite": "node scripts/sprite-partenaires.mjs",
     "test": "vitest run",
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=$HOME/Library/Caches/ms-playwright playwright test",
     "test:watch": "vitest",

@@ -3,13 +3,26 @@
         <h2 class="mb85 px-5">Partenaire</h2>
 
         <div class="banner-scroll flex flex-nowrap gap-15 items-center *:rounded-none">
-            <AppImage
-                v-for="(partner, i) in repeatedPartners"
-                :key="`partner-${i}`"
-                :media="partner"
-                sizes="150px"
-                class="max-h-37.5 w-auto rounded-none"
-            />
+            <!--
+                Les treize logos sont réunis en une seule image, écarts compris :
+                la bande affichée est le sprite lui-même, posé deux fois. Une
+                requête au lieu de treize, six nœuds au lieu de cent quatre.
+
+                Seul le premier exemplaire est décrit ; le second est la même
+                image, répétée pour que le défilement se raccorde.
+            -->
+            <picture v-for="copie in 2" :key="`bande-${copie}`">
+                <source type="image/avif" :srcset="cheminPublic('/assets/images/partenaires.avif')">
+                <img
+                    :src="cheminPublic('/assets/images/partenaires.webp')"
+                    :alt="copie === 1 ? texteDesPartenaires : ''"
+                    :width="Math.round(sprite.largeurTotale / 2)"
+                    :height="sprite.hauteur / 2"
+                    loading="lazy"
+                    decoding="async"
+                    class="max-h-37.5 w-auto rounded-none"
+                >
+            </picture>
         </div>
     </section>
 
@@ -131,6 +144,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import sprite from '~~/app/data/partenaires-sprite.json'
 
 const route = useRoute()
 const isMentionsLegales = computed(() => route.path === '/mentions-legales')
@@ -149,33 +163,22 @@ const footerAddress = computed(() => options.value.adresse_postale || '')
 const footerAddressInfo = computed(() => options.value.information_dadresse || '')
 
 /*
-   Le bandeau défile en boucle : les logos sont dupliqués pour que la
+   Le bandeau défile en boucle, et la bande est posée deux fois pour que la
    translation se raccorde sans saut.
 
-   Deux séries, et non trois. L'animation translate la bande de 200vh ; il faut
-   donc qu'elle mesure au moins la largeur du viewport plus cette distance —
-   4 080 px sur un écran 1920×1080, 1 709 px sur un téléphone. Une série de
-   quinze logos en fait déjà près de 3 150 : deux séries couvrent le pire cas
-   avec 50 % de marge, la troisième ne défilait jamais.
+   Deux exemplaires, et non trois. L'animation translate de 200vh : la bande
+   doit mesurer au moins la largeur du viewport plus cette distance — 4 080 px
+   sur un écran 1920×1080, 1 709 px sur un téléphone. Un exemplaire en fait déjà
+   près de 4 475 : deux couvrent le pire cas au double, le troisième ne défilait
+   jamais.
 
-   Ce n'est pas de l'économie de bouts de chandelle : le bandeau est dans le
-   pied de page, donc sur chaque page du site, et la troisième série y pesait
-   soixante nœuds de DOM — le poste que la note EcoIndex pénalise le plus.
-
-   Seule la première série porte un texte alternatif — le nom du partenaire. La
-   copie est purement décorative et reçoit un alt vide : sans ça, un lecteur
-   d'écran annoncerait deux fois la même chose.
+   Le texte alternatif énumère les partenaires, ce que treize images séparées
+   faisaient une par une. Le second exemplaire reçoit un alt vide : sans ça, un
+   lecteur d'écran annoncerait deux fois la même liste.
 */
-const repeatedPartners = computed(() => {
-    const base = options.value.logos_des_partenaires || []
-
-    return [0, 1].flatMap((copie) =>
-        base.map((partner) => ({
-            ...partner,
-            alt: copie === 0 ? partner.alt || partner.title || '' : '',
-        }))
-    )
-})
+const texteDesPartenaires = computed(() =>
+    sprite.partenaires.length ? `Nos partenaires : ${sprite.partenaires.join(', ')}` : 'Nos partenaires'
+)
 
 const currentYear = new Date().getFullYear()
 

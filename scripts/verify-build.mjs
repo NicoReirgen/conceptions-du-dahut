@@ -4,10 +4,11 @@
  * Le prérendu n'échoue pas sur un lien mort saisi dans WordPress : ce serait
  * bloquer un déploiement pour un problème de contenu. La garantie est donc ici.
  *
- * Trois contrôles :
+ * Quatre contrôles :
  *   — toute route déclarée par l'API a bien produit une page (sinon, échec) ;
  *   — les liens internes qui ne mènent nulle part sont listés (sans échec) ;
- *   — tout fichier référencé par une page existe (sinon, échec).
+ *   — tout fichier référencé par une page existe (sinon, échec) ;
+ *   — le sprite des partenaires est à jour (sinon, échec).
  *
  *   node scripts/verify-build.mjs
  */
@@ -214,6 +215,28 @@ async function main() {
     if (missing.length) {
         console.error(`ÉCHEC : ${missing.length} route(s) déclarée(s) non générée(s) :`)
         missing.forEach((route) => console.error(`  ${route}`))
+        process.exit(1)
+    }
+
+    // --- Sprite des partenaires
+    /*
+       Le bandeau du pied de page n'affiche plus treize images mais une seule,
+       composée au build. Un partenaire ajouté dans WordPress n'y apparaîtrait
+       donc pas, et rien ne le signalerait : la bande resterait belle, et fausse.
+    */
+    const { options } = await (await fetch(`${WP_BASE}/wp-json/dahut/v1/bootstrap`)).json()
+    const declares = (options?.logos_des_partenaires || []).map(
+        (logo) => logo.alt || logo.title || ''
+    )
+    const composes = JSON.parse(
+        await readFile(path.join(ROOT, 'app/data/partenaires-sprite.json'), 'utf-8')
+    ).partenaires
+
+    if (declares.join('|') !== composes.join('|')) {
+        console.error('ÉCHEC : le sprite des partenaires ne correspond plus à WordPress.')
+        console.error(`  WordPress : ${declares.join(', ') || '(aucun)'}`)
+        console.error(`  sprite    : ${composes.join(', ') || '(aucun)'}`)
+        console.error('\nLe régénérer : npm run sprite')
         process.exit(1)
     }
 

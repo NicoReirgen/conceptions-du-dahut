@@ -20,8 +20,8 @@ npm run assets && npm run publier
 ```
 
 `assets` prépare les fichiers lourds (images du configurateur, médias
-WordPress, vidéos, polices) — inutile de le relancer si rien n'a changé de ce
-côté. `publier` construit le site sous son sous-chemin, remplit la branche
+WordPress, vidéos, polices) et compose le sprite des logos partenaires —
+inutile de le relancer si rien n'a changé de ce côté. `publier` construit le site sous son sous-chemin, remplit la branche
 `gh-pages` et la pousse ; GitHub Pages sert cette branche une à deux minutes
 plus tard.
 

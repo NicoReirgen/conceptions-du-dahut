@@ -8,18 +8,23 @@ servi par GitHub Pages, et non plus une simulation d'hébergeur en local.
 
 | page | Perf | Accessibilité | Bonnes pratiques | SEO | LCP | CLS | TBT | poids |
 |---|---|---|---|---|---|---|---|---|
-| accueil | 94 | 100 | 100 | 100 | 2,5 s | 0 | 5 ms | 466 Ko |
-| produits | 99 | 100 | 100 | 100 | 2,1 s | 0 | 0 ms | 366 Ko |
-| qui-sommes-nous | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 788 Ko |
-| contact | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 283 Ko |
-| produits/orion | 97 | 100 | 96 | 100 | 1,8 s | 0 | 22 ms | 265 Ko |
-| sur-mesure | 94 | 100 | 96 | 100 | 2,6 s | 0 | 17 ms | 467 Ko |
-| realisations | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 312 Ko |
-| configurateur | 97 | 100 | 96 | 100 | 2,0 s | 0 | 40 ms | 178 Ko |
-| mentions-legales | 99 | 100 | 100 | 100 | 1,8 s | 0 | 6 ms | 184 Ko |
+| accueil | 91 | 100 | 100 | 100 | 3,0 s | 0 | 0 ms | 465 Ko |
+| produits | 97 | 100 | 100 | 100 | 2,3 s | 0 | 0 ms | 324 Ko |
+| qui-sommes-nous | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 787 Ko |
+| contact | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 241 Ko |
+| produits/orion | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 224 Ko |
+| sur-mesure | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 466 Ko |
+| realisations | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 271 Ko |
+| configurateur | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 179 Ko |
+| mentions-legales | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 184 Ko |
 
-**Moyennes : performance 97, accessibilité 100, bonnes pratiques 99, SEO 100.**
-Décalage cumulé nul partout, LCP moyen 2,0 s, poids moyen 368 Ko.
+**Moyennes : performance 98, accessibilité 100, bonnes pratiques 100, SEO 100.**
+Décalage cumulé nul et temps de blocage nul sur les neuf pages, aucune erreur
+console, poids moyen 349 Ko.
+
+L'accueil oscille entre 91 et 94 d'une campagne à l'autre, pour un LCP qui varie
+de 2,5 à 3,0 s — c'est la dispersion d'une mesure sur un hébergeur distant, pas
+une régression : son poids et son nombre de requêtes n'ont fait que baisser.
 
 Deux choses ont été trouvées par cette campagne.
 
@@ -60,35 +65,39 @@ supprimerait.
 | accueil | 0,06 g | 90 % des pages du web | 6,95 kg CO2e/an |
 | qui-sommes-nous | 0,08 g | 87 % des pages du web | 9,11 kg CO2e/an |
 
-**EcoIndex : note B ou C selon les pages.** Mesuré en 1920×1080, page
-entièrement déroulée — donc toutes les images différées chargées.
+**EcoIndex : de B à A selon les pages.** Mesuré en 1920×1080, page entièrement
+déroulée — donc toutes les images différées chargées.
 
 | page | note | score | poids | requêtes | nœuds DOM |
 |---|---|---|---|---|---|
-| accueil | C | 68 | 624 Ko | 54 | 386 |
-| qui-sommes-nous | **B** | 71 | 931 Ko | 49 | 326 |
-| contact | **B** | 75 | 318 Ko | 41 | 355 |
+| accueil | **B** | 76 | 582 Ko | 41 | 287 |
+| qui-sommes-nous | **B** | 78 | 889 Ko | 36 | 227 |
+| contact | **A** | 81 | 276 Ko | 28 | 256 |
 
-Ces scores sont ceux d'après correction. La première mesure donnait 66, 68 et
-72, toutes trois en C : la bande des partenaires triplait ses quinze logos dans
-le pied de page, donc sur chaque page du site. Deux séries suffisent au
-défilement — soixante nœuds de DOM en moins partout, et deux pages qui passent
-en B.
+Deux corrections successives ont mené là, depuis 66, 68 et 72 — trois C.
 
-EcoIndex pèse trois choses, et le DOM le plus lourdement : c'est pourquoi
-soixante nœuds valent trois points quand cent kilo-octets n'en valent qu'un.
-Leur simulateur permet de chiffrer un projet avant de l'entreprendre :
+**La bande des partenaires triplait ses treize logos**, dans le pied de page,
+donc sur chaque page du site. L'animation ne translate que de 200vh : la
+troisième série ne défilait jamais. Sa suppression a valu trois points par page.
+
+**Les treize logos sont ensuite devenus une seule image.**
+`scripts/sprite-partenaires.mjs` les compose au build, écarts compris : le
+sprite est la bande telle qu'elle s'affiche, que le pied de page pose deux fois
+pour boucler le défilement. Treize requêtes deviennent une, 93 Ko deviennent
+55 Ko en AVIF, et cent quatre nœuds de DOM deviennent six. Gain : huit points
+sur l'accueil, sept sur qui-sommes-nous, six sur contact — qui passe en A.
+
+C'est le rendement d'un bandeau décoratif qui payait le prix d'une galerie.
+Le sprite ne peut pas se démoder en silence : `verify-build.mjs` compare la
+liste composée à celle de WordPress, et échoue si elles divergent.
+
+EcoIndex pèse trois choses, et le DOM le plus lourdement : soixante nœuds
+valaient trois points quand cent kilo-octets n'en valent qu'un. Leur simulateur
+permet de chiffrer un projet avant de l'entreprendre :
 
 ```bash
-curl "https://api.ecoindex.fr/ecoindex/ecoindex?dom=386&size=624&requests=54"
+curl "https://api.ecoindex.fr/ecoindex/ecoindex?dom=287&size=582&requests=41"
 ```
-
-Ce qu'il dit de l'accueil, resté en C à 68 : il faudrait **à la fois** huit
-requêtes et cent kilo-octets de moins pour atteindre B. Les leviers restants
-ont tous une contrepartie — supprimer le préchargement des pages liées (une
-navigation plus lente), réunir les quinze logos partenaires en une seule image
-(un sprite à construire, et un bandeau à revoir), ou baisser la qualité des
-images (une perte visible). Aucun n'a été pris.
 
 **L'hébergement n'est pas vert.** L'API de la Green Web Foundation ne recense
 pas `nicoreirgen.github.io` ; Website Carbon estime qu'un hébergeur vert

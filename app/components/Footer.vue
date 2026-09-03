@@ -147,7 +147,15 @@ import { computed } from 'vue'
 import sprite from '~~/app/data/partenaires-sprite.json'
 
 const route = useRoute()
-const isMentionsLegales = computed(() => route.path === '/mentions-legales')
+
+/*
+   La barre finale compte, et elle arrive sans prévenir : GitHub Pages redirige
+   `/mentions-legales` vers `/mentions-legales/`. La comparaison stricte était
+   donc vraie au rendu serveur, fausse une fois la page servie — le pied de page
+   masquait les partenaires et les avis, puis l'hydratation les rétablissait.
+   Vue signalait la divergence en console, et Lighthouse la comptait.
+*/
+const isMentionsLegales = computed(() => route.path.replace(/\/+$/, '') === '/mentions-legales')
 
 const { menus, options, avis } = await useBootstrap()
 

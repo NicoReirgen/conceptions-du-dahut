@@ -92,6 +92,34 @@ test.describe('sous-chemin de publication', () => {
     }
 })
 
+test.describe('hydratation', () => {
+    /*
+       Une divergence entre le HTML servi et l'arbre reconstruit par Vue ne se
+       voit pas : la page finit par s'afficher correctement. Elle se lit dans la
+       console, et se paie en travail inutile au chargement.
+
+       Les adresses sont demandées **avec une barre finale**, parce que c'est
+       ainsi que l'hébergeur les sert : `/mentions-legales` y est redirigé vers
+       `/mentions-legales/`. C'est cette barre qui avait fait diverger le pied
+       de page, dont une comparaison de chemin était trop stricte.
+    */
+    for (const route of ['/', '/mentions-legales/', '/qui-sommes-nous/', '/produits/']) {
+        test(`${route} s’hydrate sans divergence`, async ({ page }) => {
+            const erreurs = []
+            page.on('console', (message) => {
+                if (message.type() === 'error') {
+                    erreurs.push(message.text().slice(0, 120))
+                }
+            })
+
+            await page.goto(chemin(route))
+            await page.waitForLoadState('networkidle')
+
+            expect(erreurs).toEqual([])
+        })
+    }
+})
+
 test.describe('page d’erreur', () => {
     test('se nomme, et refuse d’être indexée', async ({ page }) => {
         const reponse = await page.goto(chemin('/adresse-qui-nexiste-pas'))

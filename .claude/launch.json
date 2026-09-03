@@ -10,6 +10,15 @@
       ],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "statique",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/serve-static.mjs",
+        "3010"
+      ],
+      "port": 3010
     }
   ]
 }

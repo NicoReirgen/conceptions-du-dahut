@@ -32,4 +32,16 @@ const errorMessages = {
 const errorMessage = computed(
     () => errorMessages[props.error.statusCode] ?? 'Une erreur <br>inattendue est survenue',
 )
+
+/*
+   Sans titre, l'onglet d'une page d'erreur affiche l'URL brute — et un
+   historique de navigation en garde la trace. Le message est repris tel quel,
+   ses retours à la ligne en moins.
+
+   `noindex` : une page d'erreur n'a rien à faire dans un index de recherche.
+*/
+useHead({
+    title: computed(() => `${props.error.statusCode} — ${errorMessage.value.replace(/<br>/g, '')}`),
+    meta: [{ name: 'robots', content: 'noindex' }],
+})
 </script>

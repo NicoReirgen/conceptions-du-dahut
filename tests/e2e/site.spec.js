@@ -92,6 +92,22 @@ test.describe('sous-chemin de publication', () => {
     }
 })
 
+test.describe('page d’erreur', () => {
+    test('se nomme, et refuse d’être indexée', async ({ page }) => {
+        const reponse = await page.goto(chemin('/adresse-qui-nexiste-pas'))
+
+        // GitHub Pages sert 404.html avec le bon code ; en local, le serveur de
+        // mesure fait de même.
+        expect(reponse.status()).toBe(404)
+
+        await expect(page.locator('h1')).toHaveText('404')
+        await expect(page).toHaveTitle(/^404 —/)
+
+        const robots = page.locator('meta[name="robots"]')
+        await expect(robots).toHaveAttribute('content', 'noindex')
+    })
+})
+
 test.describe('navigation au clavier', () => {
     /*
        Seize liens précèdent le contenu sur chaque page. Le lien d'évitement

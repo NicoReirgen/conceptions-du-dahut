@@ -53,6 +53,15 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'fr' },
+
+      /*
+         Titre de repli. Les pages posent le leur, mais la coquille SPA que
+         `nuxt generate` écrit dans 404.html n'exécute aucun composant : sans
+         cette valeur, l'onglet d'une adresse inconnue affiche l'URL brute
+         jusqu'à l'hydratation.
+      */
+      title: 'Les Conceptions du Dahut',
+
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },

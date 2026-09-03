@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { chemin } from './chemin'
 
 /*
    Le tunnel du configurateur, de bout en bout.
@@ -43,7 +44,7 @@ async function debloquer(page) {
 }
 
 async function ouvrirOrion(page) {
-    await page.goto('/configurateur')
+    await page.goto(chemin('/configurateur'))
     await page.getByRole('button', { name: /choisir l.option orion|^orion$/i }).first().click()
         .catch(async () => {
             await page.locator('.option-card', { hasText: 'Orion' }).first().click()
@@ -141,7 +142,7 @@ test.describe('accessibilité au clavier', () => {
     })
 
     test('les véhicules indisponibles sortent de l’ordre de tabulation', async ({ page }) => {
-        await page.goto('/configurateur')
+        await page.goto(chemin('/configurateur'))
 
         const indisponibles = page.locator('.option-card.disabled')
         await expect(indisponibles.first()).toHaveAttribute('tabindex', '-1')
@@ -149,7 +150,7 @@ test.describe('accessibilité au clavier', () => {
     })
 
     test('Entrée retient une option', async ({ page }) => {
-        await page.goto('/configurateur')
+        await page.goto(chemin('/configurateur'))
 
         const orion = page.locator('.option-card', { hasText: 'Orion' }).first()
         await orion.focus()

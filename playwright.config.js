@@ -1,4 +1,34 @@
+import { existsSync, readFileSync } from 'node:fs'
+import path from 'node:path'
 import { defineConfig, devices } from '@playwright/test'
+
+/*
+   Le sous-chemin de publication. Les tests l'appliquent à chaque navigation
+   (voir tests/e2e/chemin.js) et le serveur le retire comme le fait l'hébergeur :
+   c'est la forme réellement mise en ligne qui est éprouvée.
+*/
+const BASE = (process.env.NUXT_APP_BASE_URL || '/conceptions-du-dahut/').replace(/\/+$/, '')
+
+/*
+   Un build à la racine servi sous un sous-chemin — ou l'inverse — ferait
+   échouer les vingt-deux tests sur des 404, sans qu'on comprenne pourquoi.
+   Autant le dire tout de suite, et dire quoi lancer.
+*/
+const accueil = path.join(import.meta.dirname, '.output/public/index.html')
+
+if (!existsSync(accueil)) {
+    throw new Error(`Aucun site construit dans .output/public.\n  NUXT_APP_BASE_URL=${BASE}/ npm run generate`)
+}
+
+const construitAvec = (readFileSync(accueil, 'utf-8').match(/href="([^"]*)\/_nuxt\//) || [, ''])[1]
+
+if (construitAvec !== BASE) {
+    throw new Error(
+        `Le site construit porte le sous-chemin « ${construitAvec || '/'} », les tests attendent « ${BASE || '/'} ».\n` +
+            `  NUXT_APP_BASE_URL=${BASE}/ npm run generate` +
+            `\n  (ou npm run generate:instantane si WordPress est éteint)`
+    )
+}
 
 /*
    Tests de bout en bout, sur le site réellement généré.
@@ -28,8 +58,8 @@ export default defineConfig({
     ],
 
     webServer: {
-        command: 'node scripts/serve-static.mjs 3011',
-        url: 'http://localhost:3011',
+        command: `node scripts/serve-static.mjs 3011 ${BASE}`,
+        url: `http://localhost:3011${BASE}/`,
         reuseExistingServer: !process.env.CI,
         timeout: 30_000,
     },

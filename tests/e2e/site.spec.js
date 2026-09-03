@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { BASE, chemin } from './chemin'
 
 /*
    Le site autour du configurateur.
@@ -21,12 +22,12 @@ const PAGES = [
 ]
 
 test.describe('intégrité des pages', () => {
-    for (const { chemin, titre } of PAGES) {
-        test(`${chemin} se charge, se nomme et se décrit`, async ({ page }) => {
+    for (const { chemin: route, titre } of PAGES) {
+        test(`${route} se charge, se nomme et se décrit`, async ({ page }) => {
             const erreurs = []
             page.on('pageerror', (e) => erreurs.push(e.message))
 
-            const reponse = await page.goto(chemin)
+            const reponse = await page.goto(chemin(route))
             expect(reponse.status()).toBe(200)
 
             await expect(page).toHaveTitle(titre)
@@ -38,6 +39,55 @@ test.describe('intégrité des pages', () => {
             expect((await description.getAttribute('content')).length).toBeGreaterThan(50)
 
             expect(erreurs).toEqual([])
+        })
+    }
+})
+
+test.describe('sous-chemin de publication', () => {
+    /*
+       Le site est servi sous /conceptions-du-dahut/, et Nuxt ne réécrit que ses
+       propres URL : les médias, qui arrivent de WordPress en absolu, et les
+       logos écrits dans les gabarits passent par `app/utils/cheminPublic.js`.
+
+       Les autres tests ne verraient pas cette panne : une image qui manque ne
+       lève aucune erreur JavaScript, elle ne s'affiche simplement pas. On
+       écoute donc les réponses elles-mêmes.
+    */
+    for (const route of ['/', '/qui-sommes-nous', '/configurateur']) {
+        test(`${route} ne demande rien hors du sous-chemin, ni rien qui manque`, async ({ page }) => {
+            const egarees = []
+            const manquantes = []
+
+            page.on('response', (reponse) => {
+                const url = new URL(reponse.url())
+
+                if (url.host !== 'localhost:3011') {
+                    return
+                }
+
+                if (BASE && !url.pathname.startsWith(`${BASE}/`)) {
+                    egarees.push(url.pathname)
+                }
+
+                if (reponse.status() >= 400) {
+                    manquantes.push(`${reponse.status()} ${url.pathname}`)
+                }
+            })
+
+            await page.goto(chemin(route))
+
+            // Le défilement déclenche le chargement des images différées, que
+            // le seul rendu initial laisserait en dehors de la mesure.
+            await page.evaluate(async () => {
+                for (let y = 0; y < document.body.scrollHeight; y += 800) {
+                    window.scrollTo(0, y)
+                    await new Promise((suite) => setTimeout(suite, 60))
+                }
+            })
+            await page.waitForLoadState('networkidle')
+
+            expect(egarees).toEqual([])
+            expect(manquantes).toEqual([])
         })
     }
 })
@@ -54,15 +104,15 @@ test.describe('cloisonnement du configurateur', () => {
             if (/configurateur\..*\.css/.test(r.url())) feuilles.push(r.url())
         })
 
-        await page.goto('/contact')
+        await page.goto(chemin('/contact'))
         await page.waitForLoadState('networkidle')
 
         expect(feuilles).toEqual([])
     })
 
     test('mais le bouton y mène toujours', async ({ page }) => {
-        await page.goto('/contact')
-        await page.locator('a[href="/configurateur"]').first().click()
+        await page.goto(chemin('/contact'))
+        await page.locator(`a[href="${chemin('/configurateur')}"]`).first().click()
 
         await expect(page).toHaveURL(/\/configurateur/)
         await expect(page.locator('.option-card').first()).toBeVisible()
@@ -76,7 +126,7 @@ test.describe('formulaires en mode vitrine', () => {
             if (r.method() === 'POST') envois.push(r.url())
         })
 
-        await page.goto('/contact')
+        await page.goto(chemin('/contact'))
 
         await page.locator('#contact-nom').fill('Negrier')
         await page.locator('#contact-prenom').fill('Nicolas')
@@ -95,7 +145,7 @@ test.describe('formulaires en mode vitrine', () => {
     })
 
     test('refuse un formulaire incomplet', async ({ page }) => {
-        await page.goto('/contact')
+        await page.goto(chemin('/contact'))
         await page.getByRole('button', { name: /envoyer/i }).click()
 
         await expect(page.locator('[role="status"]')).toHaveCount(0)
@@ -108,7 +158,7 @@ test.describe('transition entre l’archive et une fiche', () => {
        faisait rester les autres en fondu par-dessus la fiche.
     */
     test('une seule réalisation porte un nom de transition', async ({ page }) => {
-        await page.goto('/realisations')
+        await page.goto(chemin('/realisations'))
 
         const nommes = await page.evaluate(() =>
             [...document.querySelectorAll('[data-transition]')]
@@ -120,7 +170,7 @@ test.describe('transition entre l’archive et une fiche', () => {
     })
 
     test('mène bien à la fiche', async ({ page }) => {
-        await page.goto('/realisations')
+        await page.goto(chemin('/realisations'))
         const premier = page.locator('article a').first()
         const cible = await premier.getAttribute('href')
 

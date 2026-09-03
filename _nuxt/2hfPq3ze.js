@@ -1,0 +1,1 @@
+import{_ as e}from"./DlAUqK2U.js";import{o as r,e as t,D as o}from"./BICcGS8r.js";const c={},n={"data-barba":"container","data-barba-namespace":"configurateur",class:"configurateur-layout"};function s(a,f){return r(),t("div",n,[o(a.$slots,"default")])}const _=e(c,[["render",s]]);export{_ as default};

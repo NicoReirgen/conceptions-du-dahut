@@ -35,8 +35,22 @@ dans le contenu sont eux signalés sans bloquer : un lien mal saisi est un
 problème éditorial, il ne doit pas empêcher une mise en ligne.
 
 Au dernier build : 30 routes déclarées, 30 générées, 2 liens internes morts
-signalés (`/produit/hard-top` et `/produit/tente-de-toi-nait-up`, tous deux
-depuis la page qui-sommes-nous — le slug correct est `/produits/`).
+signalés (`/produit/hard-top` et `/produit/tente-de-toi-nait-up`).
+
+Ces deux-là ne sont pas des liens saisis dans du texte : ce sont les champs
+lien ACF de la section « On parle du Dahut » de qui-sommes-nous — une vidéo et
+trois articles de presse, quatre liens pour deux URL seulement, réutilisées en
+alternance. Ils sont rendus par `app/components/templates/QuiSommesNous.vue`
+avec `target="_blank"` : ils attendent des URL externes (la chaîne YouTube, les
+sites des journaux), et contiennent des produits du site choisis dans le
+sélecteur interne de WordPress. La correction est donc éditoriale, dans les
+champs ACF de la page, et non dans le code du front.
+
+À noter si le cas se représente : WordPress renvoie ses permaliens de produits
+sous `/produit/…`, le rewrite slug du type de contenu, alors que le site publié
+sert `/produits/…`. Tout lien interne vers un produit choisi dans ce sélecteur
+sortira donc mort. Le second cumule un slug périmé : le produit est publié sous
+`tente-de-toit-nait-up`, avec le « t ».
 
 ## Reconstruction automatique
 

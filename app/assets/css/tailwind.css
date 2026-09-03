@@ -648,4 +648,36 @@ body {
             transform: translateX(-200vh);
         }
     }
+
+
+    /*
+       Mouvement réduit.
+
+       Les deux animations de cette branche sont pilotées par le défilement :
+       le contenu qui se révèle, et la bande des partenaires qui se translate.
+       Suivre le doigt du visiteur ne les met pas hors de cause — un mouvement
+       déclenché par l'interaction reste un mouvement, et c'est ce que vise le
+       critère 2.3.3 des WCAG.
+
+       Il ne suffit pas de couper l'animation : `.animate` part à `opacity: 0`,
+       et le contenu resterait invisible — le même piège que documente plus haut
+       la branche des navigateurs anciens. On rétablit donc l'état d'arrivée.
+
+       La barre de progression du défilement, elle, reste : ce n'est pas une
+       animation décorative mais un indicateur de position, dont le mouvement
+       est l'information même.
+    */
+    @media (prefers-reduced-motion: reduce) {
+        .animate {
+            opacity: 1;
+            scale: 1;
+            transform: none;
+
+            animation: none;
+        }
+
+        .banner-scroll {
+            animation: none;
+        }
+    }
 }

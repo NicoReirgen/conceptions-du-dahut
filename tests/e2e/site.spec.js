@@ -92,6 +92,55 @@ test.describe('sous-chemin de publication', () => {
     }
 })
 
+test.describe('mouvement réduit', () => {
+    /*
+       Le site anime beaucoup au défilement : révélation du contenu, bande des
+       partenaires, transitions de vue. Ces animations sont pilotées par le
+       défilement, ce qui ne les dispense pas d'être coupées — un mouvement
+       déclenché par l'interaction reste un mouvement (WCAG 2.3.3).
+
+       Le piège, et la raison d'être de ce test : couper l'animation sans
+       rétablir l'état d'arrivée laisserait tout le contenu à `opacity: 0`.
+       Une page muette passerait pour une page sobre.
+
+       La préférence est posée par `page.emulateMedia` plutôt que par l'option
+       `reducedMotion` de Playwright : dans cette installation, l'option reste
+       sans effet sur la page fournie par le runner, qu'elle soit déclarée dans
+       la configuration ou par `test.use` — vérifié en lisant `matchMedia` dans
+       la page, qui répondait « false ». `emulateMedia` agit, lui.
+    */
+    const avecMouvementReduit = async (page, route) => {
+        await page.emulateMedia({ reducedMotion: 'reduce' })
+        await page.goto(chemin(route))
+
+        // Sans cette vérification, une émulation qui cesserait de fonctionner
+        // rendrait les deux tests ci-dessous verts et vides de sens.
+        expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true)
+    }
+
+    test('le contenu reste visible, sans animation', async ({ page }) => {
+        await avecMouvementReduit(page, '/qui-sommes-nous')
+
+        const masques = await page.evaluate(() =>
+            [...document.querySelectorAll('.animate')]
+                .filter((element) => Number(getComputedStyle(element).opacity) < 1)
+                .map((element) => element.getAttribute('class').slice(0, 40))
+        )
+
+        expect(masques).toEqual([])
+    })
+
+    test('la bande des partenaires ne défile plus', async ({ page }) => {
+        await avecMouvementReduit(page, '/contact')
+
+        const animation = await page.evaluate(
+            () => getComputedStyle(document.querySelector('.banner-scroll')).animationName
+        )
+
+        expect(animation).toBe('none')
+    })
+})
+
 test.describe('cloisonnement du configurateur', () => {
     /*
        Sa feuille de style était appliquée sur chaque page — préchargement de

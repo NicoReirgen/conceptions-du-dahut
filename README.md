@@ -101,6 +101,22 @@ tests/                    unitaires et intégration (vitest), bout en bout (play
 Node 20. Cinq dépendances de production : Nuxt, Vue, Vue Router, Tailwind et
 Lenis — `gsap` et `swiper` ont été retirés au profit d'API natives.
 
+## Sauvegarder
+
+Le dépôt porte le code et, depuis l'instantané, le contenu publié. Trois choses
+lui échappent et n'existent que sur la machine de développement : les 243 Mo
+d'originaux du configurateur, les 743 Mo de médias WordPress, et la base — seule
+copie modifiable du contenu depuis la disparition du site en ligne.
+
+```bash
+bash scripts/sauvegarder.sh /Volumes/DisqueExterne/dahut
+```
+
+Le script relit le manifeste des originaux avant de les archiver, exporte la
+base du bon site — leurs identifiants sont lus dans la configuration de Local,
+plusieurs sites pouvant tourner —, puis relit l'archive écrite et son empreinte.
+Une archive qu'on n'a pas relue n'est pas une sauvegarde.
+
 ## Documents
 
 - **[DEPLOIEMENT.md](DEPLOIEMENT.md)** — publier, le sous-chemin, l'hébergeur

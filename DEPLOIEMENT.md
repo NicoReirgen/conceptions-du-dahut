@@ -41,9 +41,11 @@ La section « On parle du Dahut » de qui-sommes-nous en portait deux jusqu'au
 sont rendus par `app/components/templates/QuiSommesNous.vue` avec
 `target="_blank"` : ils attendent des URL externes, et contenaient des produits
 du site choisis dans le sélecteur interne de WordPress. La vidéo pointe
-désormais vers quatre vidéos YouTube réelles, miniatures officielles à l'appui ;
-les trois articles ont été retirés, les journaux les ayant dépubliés après la
-fermeture de l'entreprise.
+désormais vers quatre vidéos YouTube réelles, miniatures officielles à l'appui.
+Des trois articles, seul celui de Sud Ouest a pu être retrouvé et rebranché ;
+les deux autres, parus dans la presse du Nord, ont été retirés faute d'URL — le
+WordPress en ligne qui les gardait a disparu avec l'entreprise. Leurs textes
+sont sauvegardés hors dépôt, prêts à être remis si les articles refont surface.
 
 À retenir si le cas se représente : WordPress renvoie ses permaliens de produits
 sous `/produit/…`, le rewrite slug du type de contenu, alors que le site publié

@@ -1,5 +1,9 @@
 <template>
   <div data-barba="container" data-barba-namespace="configurateur" class="configurateur-layout">
-    <slot />
+    <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
+    <div id="contenu" tabindex="-1">
+      <slot />
+    </div>
   </div>
 </template>

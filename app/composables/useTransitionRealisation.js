@@ -7,13 +7,20 @@
    affichées en fondu par-dessus la fiche pendant toute la transition. Une seule
    réalisation à la fois est donc nommée.
 
-   L'état est déclaré hors du composable : il doit survivre au démontage de la
-   liste, puisque c'est lui qui permet à la fiche de retrouver sa carte au
-   retour en arrière.
-*/
-const slugActif = ref(null)
+   L'état doit survivre au démontage de la liste : c'est lui qui permet à la
+   fiche de retrouver sa carte au retour en arrière. Il passe donc par
+   `useState`, et non par un `ref` de module.
 
+   La différence n'est pas de style. Un `ref` de module est partagé par toutes
+   les pages d'un même processus — et la prégénération les rend toutes dans le
+   même. `Realisation.vue` affectant ce slug pendant son setup, la page
+   d'archive prégénérée après une fiche héritait de son nom de transition :
+   deux éléments de la liste partaient nommés dans le HTML livré, jusqu'à ce
+   que l'hydratation les remette à zéro. `useState` isole chaque requête.
+*/
 export const useTransitionRealisation = () => {
+    const slugActif = useState('realisation-transition', () => null)
+
     /**
      * Nom de transition d'une réalisation, ou `none` si ce n'est pas celle
      * qu'on suit. Le préfixe distingue l'image du titre.

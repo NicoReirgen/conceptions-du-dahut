@@ -92,6 +92,42 @@ test.describe('sous-chemin de publication', () => {
     }
 })
 
+test.describe('navigation au clavier', () => {
+    /*
+       Seize liens précèdent le contenu sur chaque page. Le lien d'évitement
+       doit donc être le premier élément atteignable, et mener réellement au
+       contenu — pas seulement y faire défiler la vue.
+    */
+    test('le premier tabulateur atteint le lien d’évitement, qui donne le focus au contenu', async ({ page }) => {
+        await page.goto(chemin('/qui-sommes-nous'))
+
+        await page.keyboard.press('Tab')
+
+        const premier = page.locator(':focus')
+        await expect(premier).toHaveText('Aller au contenu')
+
+        await page.keyboard.press('Enter')
+
+        expect(await page.evaluate(() => document.activeElement?.id)).toBe('contenu')
+    })
+
+    test('le focus au clavier est visible', async ({ page }) => {
+        await page.goto(chemin('/produits'))
+
+        // Le premier lien du contenu, après le lien d'évitement et l'en-tête.
+        await page.keyboard.press('Tab')
+        await page.keyboard.press('Tab')
+
+        const contour = await page.evaluate(() => {
+            const style = getComputedStyle(document.activeElement)
+            return { style: style.outlineStyle, epaisseur: style.outlineWidth }
+        })
+
+        expect(contour.style).not.toBe('none')
+        expect(parseFloat(contour.epaisseur)).toBeGreaterThanOrEqual(2)
+    })
+})
+
 test.describe('mouvement réduit', () => {
     /*
        Le site anime beaucoup au défilement : révélation du contenu, bande des

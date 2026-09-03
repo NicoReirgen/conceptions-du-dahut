@@ -211,6 +211,61 @@ button.button-underlined {
     animation-duration: 0.25s;
 }
 
+/*
+   Le lien d'évitement.
+
+   Hors de l'écran tant qu'il n'a pas le focus, mais jamais retiré du flux ni
+   masqué par `display: none` — un élément ainsi caché n'est pas atteignable au
+   clavier, ce qui le rendrait inutile.
+
+   Il se pose par-dessus tout le reste, préchargeur compris, et sur fond noir
+   du site pour rester lisible quel que soit le haut de page.
+*/
+.lien-evitement {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+
+    padding: .75rem 1.25rem;
+
+    background: #000;
+    color: #fff;
+    text-decoration: underline;
+
+    transform: translateY(-150%);
+}
+
+.lien-evitement:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid #fff;
+    outline-offset: -6px;
+}
+
+/*
+   Le focus au clavier, partout.
+
+   Une seule règle `:focus-visible` existait, pour les listes déroulantes du
+   configurateur : tout le reste s'en remettait à l'anneau par défaut du
+   navigateur, dont l'épaisseur et la couleur varient — et se voient mal sur le
+   noir du site.
+
+   `currentColor` suit le texte : blanc sur les sections sombres, noir sur les
+   claires. `:where()` garde la spécificité à zéro, pour qu'un composant qui
+   dessine déjà son focus continue de l'emporter.
+*/
+:where(a, button, summary, input, textarea, select, [tabindex]:not([tabindex='-1'])):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+
+/* La cible du lien ne doit pas dessiner d'anneau : ce n'est pas un contrôle. */
+#contenu:focus {
+    outline: none;
+}
+
+
 @media (prefers-reduced-motion: reduce) {
     ::view-transition-group(*),
     ::view-transition-old(*),

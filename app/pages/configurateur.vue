@@ -232,18 +232,6 @@
 			}
 		}
 
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(-10px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
 		.option-card, .checkbox-option-card, .unique-option-card {
 			&:not(:has(.checkbox)).selected {
 				.option-card-content {
@@ -442,27 +430,50 @@
 			color: rgba(255, 255, 255, 0.8);
 		}
 
-		@keyframes fadeInScale {
-			from {
-				opacity: 0;
-				transform: scale(0.8);
-			}
-			to {
-				opacity: 1;
-				transform: scale(1);
-			}
+}
+
+/*
+   Les animations du configurateur.
+
+   Elles étaient déclarées à l'intérieur de la règle `.configurateur-layout`.
+   Un `@keyframes` imbriqué dans une règle de style n'est pas du CSS valide :
+   le minificateur les remontait silencieusement, jusqu'à ce qu'une version
+   plus stricte refuse de construire. Leur place est ici, au niveau supérieur —
+   un nom d'animation est de toute façon global.
+*/
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
 		}
 
-		@keyframes rotateDevice {
-			0%, 100% {
-				transform: rotate(0deg);
-			}
-			25% {
-				transform: rotate(-15deg);
-			}
-			75% {
-				transform: rotate(15deg);
-			}
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
-}
+	}
+
+	@keyframes fadeInScale {
+		from {
+			opacity: 0;
+			transform: scale(0.8);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes rotateDevice {
+		0%, 100% {
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(-15deg);
+		}
+		75% {
+			transform: rotate(15deg);
+		}
+	}
 </style>

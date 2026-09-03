@@ -10,6 +10,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "dev:clean": "pkill -f \"[n]uxt dev\" || true; rm -rf .nuxt node_modules/.cache/nuxt; nuxt dev",
+    "favicon": "node scripts/favicon.mjs",
     "fonts": "bash scripts/subset-fonts.sh",
     "generate": "node scripts/verify-catalogue.mjs && nuxt generate && node scripts/verify-build.mjs",
     "images": "node scripts/optimize-images.mjs",

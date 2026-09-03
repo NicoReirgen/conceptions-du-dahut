@@ -63,8 +63,15 @@ export default defineNuxtConfig({
            racine du domaine — hors du sous-chemin de publication, où il n'y a
            rien. Le 404 qui en résultait était la seule erreur console du site,
            et coûtait quatre points de bonnes pratiques à Lighthouse.
+
+           Trois déclarations, parce qu'aucun format ne suffit seul : le SVG,
+           net à toute taille, que retiennent les navigateurs récents ; l'ICO et
+           ses trois tailles pour les plus anciens ; le PNG que réclame iOS.
+           Tous trois sont fabriqués par `npm run favicon` à partir du picto.
         */
-        { rel: 'icon', type: 'image/x-icon', href: `${baseURL}favicon.ico` },
+        { rel: 'icon', type: 'image/x-icon', sizes: '32x32', href: `${baseURL}favicon.ico` },
+        { rel: 'icon', type: 'image/svg+xml', href: `${baseURL}favicon.svg` },
+        { rel: 'apple-touch-icon', href: `${baseURL}apple-touch-icon.png` },
 
         // La police du titre est visible d'emblée : la demander tôt évite que le
         // texte s'affiche d'abord dans la police système puis saute.

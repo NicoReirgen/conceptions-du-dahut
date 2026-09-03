@@ -77,9 +77,10 @@ au clavier et le tunnel de configuration de bout en bout.
 
 ## Mesures
 
-Sur le site en ligne, en émulation mobile : **performance 98 de moyenne,
-accessibilité 100, bonnes pratiques 100, SEO 100**, aucune erreur console.
-Website Carbon donne A, EcoIndex B à A selon les pages.
+Sur le site en ligne, en émulation mobile : **performance 96 de moyenne,
+accessibilité 100, bonnes pratiques 100, SEO 100**, aucune erreur console et un
+décalage cumulé nul sur les neuf pages. Website Carbon donne A, EcoIndex B à A
+selon les pages.
 
 Le détail, la méthode et ce que la mesure a révélé — quatre défauts invisibles à
 la lecture du code — sont dans **[MESURES.md](MESURES.md)**.

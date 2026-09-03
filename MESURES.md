@@ -1,45 +1,60 @@
 # Mesures
 
-## En ligne — état figé au 3 septembre 2026
+## En ligne — état figé au 3 septembre 2026, après reprise
 
 Lighthouse 13.4.1, émulation mobile (Moto G Power, 4G bridée, processeur ×4),
-sur **https://nicoreirgen.github.io/conceptions-du-dahut/** — le site publié,
-servi par GitHub Pages, et non plus une simulation d'hébergeur en local.
+sur **https://nicoreirgen.github.io/conceptions-du-dahut/**.
 
-| page | Perf | Accessibilité | Bonnes pratiques | SEO | LCP | CLS | TBT | poids |
-|---|---|---|---|---|---|---|---|---|
-| accueil | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 468 Ko |
-| produits | 97 | 100 | 100 | 100 | 1,9 s | 0 | 10 ms | 327 Ko |
-| qui-sommes-nous | 97 | 100 | 100 | 100 | 2,1 s | 0 | 3 ms | 790 Ko |
-| contact | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 244 Ko |
-| produits/orion | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 227 Ko |
-| sur-mesure | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 469 Ko |
-| realisations | 98 | 100 | 100 | 100 | 1,8 s | 0 | 4 ms | 274 Ko |
-| configurateur | 98 | 100 | 100 | 100 | 2,0 s | 0 | 4 ms | 182 Ko |
-| mentions-legales | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 188 Ko |
+| page | Perf | Accessibilité | Bonnes pratiques | SEO | LCP | CLS | poids |
+|---|---|---|---|---|---|---|---|
+| accueil | 94 | 100 | 100 | 100 | 2,6 s | 0 | 472 Ko |
+| produits | 96 | 100 | 100 | 100 | 2,5 s | 0 | 342 Ko |
+| qui-sommes-nous | 90 | 100 | 100 | 100 | 3,4 s | 0 | 805 Ko |
+| contact | 98 | 100 | 100 | 100 | 2,0 s | 0 | 259 Ko |
+| produits/orion | 99 | 100 | 100 | 100 | 1,9 s | 0 | 274 Ko |
+| sur-mesure | 93 | 100 | 100 | 100 | 3,0 s | 0 | 484 Ko |
+| realisations | 99 | 100 | 100 | 100 | 1,8 s | 0 | 298 Ko |
+| configurateur | 98 | 100 | 100 | 100 | 2,0 s | 0 | 208 Ko |
+| mentions-legales | 98 | 100 | 100 | 100 | 2,0 s | 0 | 202 Ko |
 
-**Moyennes : performance 98, accessibilité 100, bonnes pratiques 100, SEO 100.**
-Aucune page sous 97. Décalage cumulé nul, temps de blocage quasi nul, **aucune
-erreur console** sur les neuf pages. LCP moyen 1,9 s, poids moyen 352 Ko.
+**Moyennes : performance 96, accessibilité 100, bonnes pratiques 100, SEO 100.**
+Décalage cumulé nul, temps de blocage quasi nul, **aucune erreur console**.
+
+### Ce que valent ces chiffres
+
+La performance se mesure sur un hébergeur distant : elle bouge. La page la plus
+lourde, qui-sommes-nous, a donné 90 dans cette campagne et **97, 92 puis 99**
+en trois passages isolés une minute plus tôt. Deux causes identifiées :
+
+- **le cache froid** après une mise en ligne — les premières mesures qui ont
+  suivi un déploiement donnaient systématiquement trois à huit points de moins ;
+- **l'enchaînement** des neuf pages sans pause, qui pénalise les plus lourdes.
+
+Les quatre autres notes, elles, ne bougent pas : accessibilité, bonnes
+pratiques et SEO sont à 100 sur les neuf pages, campagne après campagne, et le
+décalage cumulé est nul partout.
 
 ### Trois défauts trouvés par ces campagnes
 
 **Le favicon était celui de Nuxt.** Le logo vert de l'échafaudage, jamais
-remplacé depuis l'installation. Il répondait 200, ce qui suffisait à tromper une
-vérification par code de réponse : c'est en regardant l'image qu'on le voit.
-Il est désormais fabriqué à partir du picto du Dahut (`npm run favicon`).
-
-**Il renvoyait par ailleurs 404 avant cela.** Sans `<link rel="icon">`, le
-navigateur le cherche à la racine du domaine — hors du sous-chemin de
-publication. C'était la seule erreur console du site, et elle coûtait quatre
-points de bonnes pratiques partout.
+remplacé. Il répondait 200, ce qui suffisait à tromper une vérification par
+code de réponse : c'est en regardant l'image qu'on le voit. Il est désormais
+fabriqué à partir du picto du Dahut (`npm run favicon`), et déclaré — sans quoi
+le navigateur le cherchait à la racine du domaine, hors du sous-chemin, pour un
+404 sur chaque page.
 
 **Trois pages portaient une exception `AbortError: Transition was skipped`.**
 Quand le navigateur renonce à une transition de vue, il rejette `ready` et
 `updateCallbackDone`, que le plugin de Nuxt n'attrape pas — lui n'attrape que
-`finished`. Rien n'était cassé, mais le navigateur les journalisait comme des
-erreurs. `app/plugins/transition-de-vue.client.js` n'intercepte que ces deux
+`finished`. `app/plugins/transition-de-vue.client.js` n'intercepte que ces deux
 promesses : une vraie erreur reste visible.
+
+**Le pied de page divergeait à l'hydratation.**
+`route.path === '/mentions-legales'` était vrai au rendu serveur et faux une
+fois la page servie : GitHub Pages redirige vers `/mentions-legales/`, barre
+finale comprise. Le HTML livré masquait les partenaires et les avis, que
+l'hydratation rétablissait ensuite. Quatre tests de bout en bout gardent
+désormais ce point, sur des adresses demandées **avec** leur barre finale.
 
 ### Ce que l'hébergeur apporte, et ce qu'il coûte
 
@@ -53,7 +68,7 @@ C'est le seul point que Pages ne permet pas de corriger — aucun contrôle sur 
 en-têtes. Un hébergeur qui les laisse régler (Cloudflare Pages, Netlify) le
 supprimerait.
 
-## Empreinte environnementale — état figé au 3 septembre 2026
+## Empreinte environnementale — 3 septembre 2026
 
 **Website Carbon : A sur les quatre pages mesurées.**
 
@@ -64,8 +79,7 @@ supprimerait.
 | produits | A | 0,04 g | 93 % |
 | contact | A | 0,03 g | 96 % |
 
-**EcoIndex : de B à A.** Mesuré en 1920×1080, page entièrement déroulée — donc
-toutes les images différées chargées.
+**EcoIndex : B, B, A.**
 
 | page | note | score | poids | requêtes | nœuds DOM |
 |---|---|---|---|---|---|
@@ -73,11 +87,17 @@ toutes les images différées chargées.
 | qui-sommes-nous | B | 78 | 889 Ko | 36 | 227 |
 | contact | A | 81 | 276 Ko | 28 | 256 |
 
-Ces trois mesures datent de la campagne précédant l'ajout du favicon :
-EcoIndex n'accepte que **dix mesures par jour et par domaine**, quota épuisé
-par les itérations de la journée. L'écart est négligeable — le favicon ne change
-pas le nombre de requêtes, le navigateur en demandant déjà un auparavant, pour
-recevoir un 404 ; il ajoute trois kilo-octets.
+Ces trois mesures officielles datent de la campagne qui a suivi le sprite des
+partenaires, avant le favicon, le lien d'évitement et le sitemap. **EcoIndex
+n'accepte que dix mesures par jour et par domaine**, quota épuisé par les
+itérations de la journée : la campagne suivante devra attendre le lendemain.
+
+En attendant, les mêmes grandeurs mesurées ici — navigateur en 1920×1080, page
+entièrement déroulée — et passées au simulateur officiel donnent 70, 75 et 80.
+Ces valeurs ne se comparent pas aux précédentes : ma façon de compter les nœuds
+et les octets n'est pas la leur — sur une même page, mon relevé donne 371 nœuds
+là où leur mesure en comptait 287. Seules les mesures officielles font foi ;
+celles-ci servent à voir bouger l'aiguille entre deux campagnes.
 
 ### Le chemin depuis la première mesure
 
@@ -94,10 +114,6 @@ sprite est la bande telle qu'elle s'affiche, que le pied de page pose deux fois
 pour boucler le défilement. Treize requêtes deviennent une, 93 Ko deviennent
 55 Ko en AVIF, cent quatre nœuds de DOM deviennent six. Huit points sur
 l'accueil, sept sur qui-sommes-nous, six sur contact — qui passe en A.
-
-C'est le rendement d'un bandeau décoratif qui payait le prix d'une galerie. Le
-sprite ne peut pas se démoder en silence : `verify-build.mjs` compare la liste
-composée à celle de WordPress et échoue si elles divergent.
 
 EcoIndex pèse trois choses, et le DOM le plus lourdement : soixante nœuds
 valaient trois points quand cent kilo-octets n'en valent qu'un. Leur simulateur

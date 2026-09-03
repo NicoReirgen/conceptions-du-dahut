@@ -58,6 +58,14 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       ],
       link: [
+        /*
+           Sans déclaration explicite, le navigateur cherche /favicon.ico à la
+           racine du domaine — hors du sous-chemin de publication, où il n'y a
+           rien. Le 404 qui en résultait était la seule erreur console du site,
+           et coûtait quatre points de bonnes pratiques à Lighthouse.
+        */
+        { rel: 'icon', type: 'image/x-icon', href: `${baseURL}favicon.ico` },
+
         // La police du titre est visible d'emblée : la demander tôt évite que le
         // texte s'affiche d'abord dans la police système puis saute.
         {

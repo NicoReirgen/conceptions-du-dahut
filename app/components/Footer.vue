@@ -149,17 +149,27 @@ const footerAddress = computed(() => options.value.adresse_postale || '')
 const footerAddressInfo = computed(() => options.value.information_dadresse || '')
 
 /*
-   Le bandeau défile en boucle : les logos sont triplés pour que la translation
-   se raccorde sans saut.
+   Le bandeau défile en boucle : les logos sont dupliqués pour que la
+   translation se raccorde sans saut.
 
-   Seule la première série porte un texte alternatif — le nom du partenaire. Les
-   deux copies sont purement décoratives et reçoivent un alt vide : sans ça, un
-   lecteur d'écran annoncerait trente-neuf fois la même chose.
+   Deux séries, et non trois. L'animation translate la bande de 200vh ; il faut
+   donc qu'elle mesure au moins la largeur du viewport plus cette distance —
+   4 080 px sur un écran 1920×1080, 1 709 px sur un téléphone. Une série de
+   quinze logos en fait déjà près de 3 150 : deux séries couvrent le pire cas
+   avec 50 % de marge, la troisième ne défilait jamais.
+
+   Ce n'est pas de l'économie de bouts de chandelle : le bandeau est dans le
+   pied de page, donc sur chaque page du site, et la troisième série y pesait
+   soixante nœuds de DOM — le poste que la note EcoIndex pénalise le plus.
+
+   Seule la première série porte un texte alternatif — le nom du partenaire. La
+   copie est purement décorative et reçoit un alt vide : sans ça, un lecteur
+   d'écran annoncerait deux fois la même chose.
 */
 const repeatedPartners = computed(() => {
     const base = options.value.logos_des_partenaires || []
 
-    return [0, 1, 2].flatMap((copie) =>
+    return [0, 1].flatMap((copie) =>
         base.map((partner) => ({
             ...partner,
             alt: copie === 0 ? partner.alt || partner.title || '' : '',

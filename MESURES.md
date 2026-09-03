@@ -29,13 +29,15 @@ publication. C'était la seule erreur console du site, et elle coûtait quatre
 points de bonnes pratiques partout. Corrigé : la balise est déclarée avec la
 baseURL.
 
-**Trois pages gardent 96 en bonnes pratiques**, pour une exception
-`AbortError: Transition was skipped`. Elle vient des transitions de vue
-natives (`experimental.viewTransition`) : quand le navigateur abandonne une
-transition, la promesse `finished` est rejetée, et personne ne l'attrape. Le
-rejet survient surtout quand le document n'est pas au premier plan, ce qui est
-le cas sous Lighthouse en mode headless — un visiteur réel le rencontrera
-rarement. Se réglerait en interceptant ce rejet précis.
+**Trois pages sont passées de 96 à 100** après la seconde correction. Elles
+portaient une exception `AbortError: Transition was skipped`, venue des
+transitions de vue natives : quand le navigateur renonce à une transition, il
+rejette `ready` et `updateCallbackDone`, que le plugin de Nuxt n'attrape pas —
+lui n'attrape que `finished`. Rien n'était cassé, mais le navigateur
+journalisait ces rejets comme des erreurs.
+`app/plugins/transition-de-vue.client.js` n'intercepte que ces deux promesses.
+Vérifié en ligne : configurateur, sur-mesure et produits/orion à 100, zéro
+erreur console.
 
 ### Ce que l'hébergeur apporte, et ce qu'il coûte
 
@@ -58,19 +60,35 @@ supprimerait.
 | accueil | 0,06 g | 90 % des pages du web | 6,95 kg CO2e/an |
 | qui-sommes-nous | 0,08 g | 87 % des pages du web | 9,11 kg CO2e/an |
 
-**EcoIndex : note C.** Mesuré en 1920×1080, page entièrement déroulée.
+**EcoIndex : note B ou C selon les pages.** Mesuré en 1920×1080, page
+entièrement déroulée — donc toutes les images différées chargées.
 
-| page | note | score | poids | requêtes | nœuds DOM | GES |
-|---|---|---|---|---|---|---|
-| accueil | C | 66 | 624 Ko | 54 | 438 | 1,68 gCO2e |
-| qui-sommes-nous | C | 68 | 932 Ko | 49 | 378 | 1,64 gCO2e |
-| contact | B | 72 | 319 Ko | 41 | 407 | 1,56 gCO2e |
+| page | note | score | poids | requêtes | nœuds DOM |
+|---|---|---|---|---|---|
+| accueil | C | 68 | 624 Ko | 54 | 386 |
+| qui-sommes-nous | **B** | 71 | 931 Ko | 49 | 326 |
+| contact | **B** | 75 | 318 Ko | 41 | 355 |
 
-Les deux outils divergent parce qu'ils ne mesurent pas la même chose : Website
-Carbon ne regarde que le poids transféré, où le site est excellent ; EcoIndex
-pèse aussi le nombre de requêtes et la taille du DOM. C'est le nombre de
-requêtes qui coûte ici — EcoIndex charge la page entière, donc toutes les images
-différées, et chaque image du site en compte une.
+Ces scores sont ceux d'après correction. La première mesure donnait 66, 68 et
+72, toutes trois en C : la bande des partenaires triplait ses quinze logos dans
+le pied de page, donc sur chaque page du site. Deux séries suffisent au
+défilement — soixante nœuds de DOM en moins partout, et deux pages qui passent
+en B.
+
+EcoIndex pèse trois choses, et le DOM le plus lourdement : c'est pourquoi
+soixante nœuds valent trois points quand cent kilo-octets n'en valent qu'un.
+Leur simulateur permet de chiffrer un projet avant de l'entreprendre :
+
+```bash
+curl "https://api.ecoindex.fr/ecoindex/ecoindex?dom=386&size=624&requests=54"
+```
+
+Ce qu'il dit de l'accueil, resté en C à 68 : il faudrait **à la fois** huit
+requêtes et cent kilo-octets de moins pour atteindre B. Les leviers restants
+ont tous une contrepartie — supprimer le préchargement des pages liées (une
+navigation plus lente), réunir les quinze logos partenaires en une seule image
+(un sprite à construire, et un bandeau à revoir), ou baisser la qualité des
+images (une perte visible). Aucun n'a été pris.
 
 **L'hébergement n'est pas vert.** L'API de la Green Web Foundation ne recense
 pas `nicoreirgen.github.io` ; Website Carbon estime qu'un hébergeur vert

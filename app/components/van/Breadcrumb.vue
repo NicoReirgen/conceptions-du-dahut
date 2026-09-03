@@ -39,7 +39,7 @@ const visibleSteps = computed(() => {
     let currentMainStep = 1;
     let stepCount = 1;
     
-    for (const step of props.steps) {
+    for (let i = 0; i < props.steps.length; i += 1) {
         // Ignorer les sous-étapes dans le comptage
         stepCount += 1;
         
@@ -61,11 +61,6 @@ watch(visibleSteps, async () => {
     }
 }, { immediate: true });
 
-// Obtenir le numéro réel de l'étape
-const getStepNumber = (step) => {
-    const index = props.steps.findIndex(s => s.key === step.key);
-    return index + 1;
-};
 </script>
 
 <style scoped>

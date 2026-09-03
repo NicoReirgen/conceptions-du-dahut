@@ -51,7 +51,7 @@
 <script setup>
 import BaseField from './BaseField.vue';
 
-const props = defineProps({
+defineProps({
     modelValue: {
         type: String,
         default: ''

@@ -143,7 +143,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import sprite from '~~/app/data/partenaires-sprite.json'
 
 const route = useRoute()

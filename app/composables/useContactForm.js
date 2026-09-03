@@ -9,15 +9,23 @@
  * La validation reste faite ici pour un retour immédiat, et le mu-plugin la
  * refait de son côté : celle du navigateur ne protège rien.
  */
+/*
+   La forme du formulaire vide, déclarée une fois. Elle servait deux fois — à
+   l'initialisation et à la remise à zéro après envoi —, deux listes qu'il
+   fallait penser à modifier ensemble. Un champ ajouté à l'une et oublié à
+   l'autre serait resté rempli d'un envoi au suivant.
+*/
+const formulaireVide = () => ({
+    nom: '',
+    prenom: '',
+    email: '',
+    telephone: '',
+    message: '',
+    consent: false,
+})
+
 export const useContactForm = () => {
-    const form = reactive({
-        nom: '',
-        prenom: '',
-        email: '',
-        telephone: '',
-        message: '',
-        consent: false,
-    })
+    const form = reactive(formulaireVide())
 
     const errors = ref([])
     const pending = ref(false)
@@ -56,14 +64,7 @@ export const useContactForm = () => {
             })
 
             sent.value = true
-            Object.assign(form, {
-                nom: '',
-                prenom: '',
-                email: '',
-                telephone: '',
-                message: '',
-                consent: false,
-            })
+            Object.assign(form, formulaireVide())
         } catch (error) {
             errors.value = [
                 error?.data?.message || "L'envoi a échoué. Merci de réessayer dans un instant.",

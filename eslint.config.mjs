@@ -90,8 +90,15 @@ export default [
             */
             'vue/no-v-html': 'warn',
 
-            // Code mort.
-            'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
+            /*
+               Code mort. `ignoreRestSiblings` couvre l'écriture qui sert à
+               écarter une clé d'un objet — `const { configuration, ...reste }` —
+               où la variable nommée n'a pas vocation à être lue.
+            */
+            'no-unused-vars': [
+                'warn',
+                { argsIgnorePattern: '^_', caughtErrors: 'none', ignoreRestSiblings: true },
+            ],
 
             /* --- garde-fous Vue courants --- */
             'vue/multi-word-component-names': 'off',   // Header.vue, Footer.vue…

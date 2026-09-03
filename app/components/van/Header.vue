@@ -29,7 +29,7 @@
 
 <script setup>
 // Props pour contrôler l'affichage du bouton
-const props = defineProps({
+defineProps({
 	showToggleButton: {
 		type: Boolean,
 		default: false

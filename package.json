@@ -18,6 +18,7 @@
     "media": "node scripts/fetch-media.mjs",
     "postinstall": "nuxt prepare",
     "preview": "nuxt preview",
+    "publier": "bash scripts/publier.sh",
     "test": "vitest run",
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=$HOME/Library/Caches/ms-playwright playwright test",
     "test:watch": "vitest",

@@ -17,9 +17,10 @@
       "runtimeArgs": [
         "scripts/serve-static.mjs",
         "3010",
-        ".output/souschemin"
+        "/conceptions-du-dahut"
       ],
-      "port": 3010
+      "port": 3010,
+      "url": "http://localhost:3010/conceptions-du-dahut/"
     }
   ]
 }

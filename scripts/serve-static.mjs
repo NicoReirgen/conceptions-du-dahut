@@ -9,17 +9,21 @@
  * Un simple `python -m http.server` ne compresse rien et donnerait un poids
  * transféré deux fois supérieur à la réalité.
  *
- * Le second argument sert un sous-dossier de racine : indispensable pour
- * répéter le déploiement sous un sous-chemin, où le site vit sous /dahut/.
+ * Le second argument répète la publication sous un sous-chemin : le préfixe est
+ * retiré de l'URL avant de chercher le fichier, comme le fait GitHub Pages pour
+ * un dépôt projet. Sans lui, impossible de vérifier en local un site construit
+ * avec une baseURL.
  *
- *   node scripts/serve-static.mjs [port] [racine]
+ *   node scripts/serve-static.mjs [port] [sous-chemin]
+ *   node scripts/serve-static.mjs 3010 /conceptions-du-dahut
  */
 import { createServer } from 'node:http'
 import { createReadStream, existsSync, statSync } from 'node:fs'
 import path from 'node:path'
 
 const PORT = Number(process.argv[2]) || 3010
-const ROOT = path.resolve(import.meta.dirname, '..', process.argv[3] || '.output/public')
+const ROOT = path.resolve(import.meta.dirname, '../.output/public')
+const BASE = (process.argv[3] || '').replace(/\/+$/, '')
 
 const TYPES = {
     '.html': 'text/html; charset=utf-8',
@@ -40,7 +44,15 @@ const TYPES = {
 
 createServer((request, response) => {
     const url = new URL(request.url, `http://localhost:${PORT}`)
-    let filePath = path.join(ROOT, decodeURIComponent(url.pathname))
+    const chemin = decodeURIComponent(url.pathname)
+
+    // Hors du sous-chemin publié, l'hébergeur ne sert rien : on l'imite.
+    if (BASE && chemin !== BASE && !chemin.startsWith(`${BASE}/`)) {
+        response.writeHead(404, { 'content-type': TYPES['.html'] }).end('Hors du site publié')
+        return
+    }
+
+    let filePath = path.join(ROOT, BASE ? chemin.slice(BASE.length) : chemin)
 
     // Empêche toute sortie du dossier publié.
     if (!filePath.startsWith(ROOT)) {
@@ -101,5 +113,5 @@ createServer((request, response) => {
     response.writeHead(200, headers)
     createReadStream(served).pipe(response)
 }).listen(PORT, () => {
-    console.log(`Site statique servi sur http://localhost:${PORT}`)
+    console.log(`Site statique servi sur http://localhost:${PORT}${BASE}/`)
 })

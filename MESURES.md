@@ -1,6 +1,6 @@
 # Mesures
 
-## En ligne — 3 septembre 2026
+## En ligne — état figé au 3 septembre 2026
 
 Lighthouse 13.4.1, émulation mobile (Moto G Power, 4G bridée, processeur ×4),
 sur **https://nicoreirgen.github.io/conceptions-du-dahut/** — le site publié,
@@ -8,41 +8,38 @@ servi par GitHub Pages, et non plus une simulation d'hébergeur en local.
 
 | page | Perf | Accessibilité | Bonnes pratiques | SEO | LCP | CLS | TBT | poids |
 |---|---|---|---|---|---|---|---|---|
-| accueil | 91 | 100 | 100 | 100 | 3,0 s | 0 | 0 ms | 465 Ko |
-| produits | 97 | 100 | 100 | 100 | 2,3 s | 0 | 0 ms | 324 Ko |
-| qui-sommes-nous | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 787 Ko |
-| contact | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 241 Ko |
-| produits/orion | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 224 Ko |
-| sur-mesure | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 466 Ko |
-| realisations | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 271 Ko |
-| configurateur | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 179 Ko |
-| mentions-legales | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 184 Ko |
+| accueil | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 468 Ko |
+| produits | 97 | 100 | 100 | 100 | 1,9 s | 0 | 10 ms | 327 Ko |
+| qui-sommes-nous | 97 | 100 | 100 | 100 | 2,1 s | 0 | 3 ms | 790 Ko |
+| contact | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 244 Ko |
+| produits/orion | 99 | 100 | 100 | 100 | 1,8 s | 0 | 0 ms | 227 Ko |
+| sur-mesure | 99 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms | 469 Ko |
+| realisations | 98 | 100 | 100 | 100 | 1,8 s | 0 | 4 ms | 274 Ko |
+| configurateur | 98 | 100 | 100 | 100 | 2,0 s | 0 | 4 ms | 182 Ko |
+| mentions-legales | 98 | 100 | 100 | 100 | 2,0 s | 0 | 0 ms | 188 Ko |
 
 **Moyennes : performance 98, accessibilité 100, bonnes pratiques 100, SEO 100.**
-Décalage cumulé nul et temps de blocage nul sur les neuf pages, aucune erreur
-console, poids moyen 349 Ko.
+Aucune page sous 97. Décalage cumulé nul, temps de blocage quasi nul, **aucune
+erreur console** sur les neuf pages. LCP moyen 1,9 s, poids moyen 352 Ko.
 
-L'accueil oscille entre 91 et 94 d'une campagne à l'autre, pour un LCP qui varie
-de 2,5 à 3,0 s — c'est la dispersion d'une mesure sur un hébergeur distant, pas
-une régression : son poids et son nombre de requêtes n'ont fait que baisser.
+### Trois défauts trouvés par ces campagnes
 
-Deux choses ont été trouvées par cette campagne.
+**Le favicon était celui de Nuxt.** Le logo vert de l'échafaudage, jamais
+remplacé depuis l'installation. Il répondait 200, ce qui suffisait à tromper une
+vérification par code de réponse : c'est en regardant l'image qu'on le voit.
+Il est désormais fabriqué à partir du picto du Dahut (`npm run favicon`).
 
-**Le favicon renvoyait 404 sur toutes les pages.** Sans `<link rel="icon">`, le
-navigateur va le chercher à la racine du domaine — hors du sous-chemin de
+**Il renvoyait par ailleurs 404 avant cela.** Sans `<link rel="icon">`, le
+navigateur le cherche à la racine du domaine — hors du sous-chemin de
 publication. C'était la seule erreur console du site, et elle coûtait quatre
-points de bonnes pratiques partout. Corrigé : la balise est déclarée avec la
-baseURL.
+points de bonnes pratiques partout.
 
-**Trois pages sont passées de 96 à 100** après la seconde correction. Elles
-portaient une exception `AbortError: Transition was skipped`, venue des
-transitions de vue natives : quand le navigateur renonce à une transition, il
-rejette `ready` et `updateCallbackDone`, que le plugin de Nuxt n'attrape pas —
-lui n'attrape que `finished`. Rien n'était cassé, mais le navigateur
-journalisait ces rejets comme des erreurs.
-`app/plugins/transition-de-vue.client.js` n'intercepte que ces deux promesses.
-Vérifié en ligne : configurateur, sur-mesure et produits/orion à 100, zéro
-erreur console.
+**Trois pages portaient une exception `AbortError: Transition was skipped`.**
+Quand le navigateur renonce à une transition de vue, il rejette `ready` et
+`updateCallbackDone`, que le plugin de Nuxt n'attrape pas — lui n'attrape que
+`finished`. Rien n'était cassé, mais le navigateur les journalisait comme des
+erreurs. `app/plugins/transition-de-vue.client.js` n'intercepte que ces deux
+promesses : une vraie erreur reste visible.
 
 ### Ce que l'hébergeur apporte, et ce qu'il coûte
 
@@ -56,40 +53,51 @@ C'est le seul point que Pages ne permet pas de corriger — aucun contrôle sur 
 en-têtes. Un hébergeur qui les laisse régler (Cloudflare Pages, Netlify) le
 supprimerait.
 
-## Empreinte environnementale — 3 septembre 2026
+## Empreinte environnementale — état figé au 3 septembre 2026
 
-**Website Carbon : note A.**
+**Website Carbon : A sur les quatre pages mesurées.**
 
-| page | CO2 par visite | plus propre que | sur 10 000 visites/mois |
+| page | note | CO2 par visite | plus propre que |
 |---|---|---|---|
-| accueil | 0,06 g | 90 % des pages du web | 6,95 kg CO2e/an |
-| qui-sommes-nous | 0,08 g | 87 % des pages du web | 9,11 kg CO2e/an |
+| accueil | A | 0,06 g | 90 % des pages du web |
+| qui-sommes-nous | A | 0,08 g | 87 % |
+| produits | A | 0,04 g | 93 % |
+| contact | A | 0,03 g | 96 % |
 
-**EcoIndex : de B à A selon les pages.** Mesuré en 1920×1080, page entièrement
-déroulée — donc toutes les images différées chargées.
+**EcoIndex : de B à A.** Mesuré en 1920×1080, page entièrement déroulée — donc
+toutes les images différées chargées.
 
 | page | note | score | poids | requêtes | nœuds DOM |
 |---|---|---|---|---|---|
-| accueil | **B** | 76 | 582 Ko | 41 | 287 |
-| qui-sommes-nous | **B** | 78 | 889 Ko | 36 | 227 |
-| contact | **A** | 81 | 276 Ko | 28 | 256 |
+| accueil | B | 76 | 582 Ko | 41 | 287 |
+| qui-sommes-nous | B | 78 | 889 Ko | 36 | 227 |
+| contact | A | 81 | 276 Ko | 28 | 256 |
 
-Deux corrections successives ont mené là, depuis 66, 68 et 72 — trois C.
+Ces trois mesures datent de la campagne précédant l'ajout du favicon :
+EcoIndex n'accepte que **dix mesures par jour et par domaine**, quota épuisé
+par les itérations de la journée. L'écart est négligeable — le favicon ne change
+pas le nombre de requêtes, le navigateur en demandant déjà un auparavant, pour
+recevoir un 404 ; il ajoute trois kilo-octets.
+
+### Le chemin depuis la première mesure
+
+Les trois pages étaient à 66, 68 et 72 — trois C. Deux corrections du même
+bandeau les ont menées là.
 
 **La bande des partenaires triplait ses treize logos**, dans le pied de page,
 donc sur chaque page du site. L'animation ne translate que de 200vh : la
-troisième série ne défilait jamais. Sa suppression a valu trois points par page.
+troisième série ne défilait jamais. Trois points par page.
 
 **Les treize logos sont ensuite devenus une seule image.**
 `scripts/sprite-partenaires.mjs` les compose au build, écarts compris : le
 sprite est la bande telle qu'elle s'affiche, que le pied de page pose deux fois
 pour boucler le défilement. Treize requêtes deviennent une, 93 Ko deviennent
-55 Ko en AVIF, et cent quatre nœuds de DOM deviennent six. Gain : huit points
-sur l'accueil, sept sur qui-sommes-nous, six sur contact — qui passe en A.
+55 Ko en AVIF, cent quatre nœuds de DOM deviennent six. Huit points sur
+l'accueil, sept sur qui-sommes-nous, six sur contact — qui passe en A.
 
-C'est le rendement d'un bandeau décoratif qui payait le prix d'une galerie.
-Le sprite ne peut pas se démoder en silence : `verify-build.mjs` compare la
-liste composée à celle de WordPress, et échoue si elles divergent.
+C'est le rendement d'un bandeau décoratif qui payait le prix d'une galerie. Le
+sprite ne peut pas se démoder en silence : `verify-build.mjs` compare la liste
+composée à celle de WordPress et échoue si elles divergent.
 
 EcoIndex pèse trois choses, et le DOM le plus lourdement : soixante nœuds
 valaient trois points quand cent kilo-octets n'en valent qu'un. Leur simulateur
@@ -101,8 +109,8 @@ curl "https://api.ecoindex.fr/ecoindex/ecoindex?dom=287&size=582&requests=41"
 
 **L'hébergement n'est pas vert.** L'API de la Green Web Foundation ne recense
 pas `nicoreirgen.github.io` ; Website Carbon estime qu'un hébergeur vert
-retirerait 9 % de l'empreinte. C'est le levier le plus court, et il ne demande
-aucune ligne de code.
+retirerait 9 % de l'empreinte. C'est le levier le plus court, et le seul qui ne
+demande aucune ligne de code.
 
 ## Avant la mise en ligne — août 2026
 
@@ -218,9 +226,16 @@ curl -X POST https://api.ecoindex.fr/v1/tasks/ecoindexes/ \
   -d '{"web_page":{"url":"https://nicoreirgen.github.io/conceptions-du-dahut/","width":1920,"height":1080}}'
 curl https://api.ecoindex.fr/v1/tasks/ecoindexes/<identifiant>
 
+# Chiffrer une amélioration avant de l'entreprendre
+curl "https://api.ecoindex.fr/ecoindex/ecoindex?dom=287&size=582&requests=41"
+
 # Hébergeur vert ou non
 curl https://api.thegreenwebfoundation.org/greencheck/nicoreirgen.github.io
 ```
+
+EcoIndex n'accepte que **dix mesures par jour et par domaine** : de quoi
+mesurer, pas de quoi itérer. Pour une série d'essais, mesurer soi-même le DOM,
+le poids et les requêtes, et les passer au simulateur ci-dessus.
 
 Website Carbon demande désormais une clé pour son API : la mesure passe par son
 formulaire, sur websitecarbon.com.

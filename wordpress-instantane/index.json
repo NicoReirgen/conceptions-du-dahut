@@ -1,0 +1,192 @@
+{
+    "pris": "2026-09-03T10:41:44.789Z",
+    "origine": "http://les-conceptions-du-dahut.withni.local",
+    "requetes": [
+        {
+            "url": "/wp-json/dahut/v1/bootstrap",
+            "statut": 200,
+            "fichier": "bootstrap.a592feff.json",
+            "octets": 10053
+        },
+        {
+            "url": "/wp-json/dahut/v1/collection/categories",
+            "statut": 200,
+            "fichier": "collection-categories.5845d9f2.json",
+            "octets": 4198
+        },
+        {
+            "url": "/wp-json/dahut/v1/collection/produits",
+            "statut": 200,
+            "fichier": "collection-produits.b3fa5059.json",
+            "octets": 14867
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2F",
+            "statut": 200,
+            "fichier": "content-path-2F.4c0a1d6d.json",
+            "octets": 13082
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Faccompagnement",
+            "statut": 200,
+            "fichier": "content-path-2Faccompagnement.7f277786.json",
+            "octets": 10294
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Famenagement-complet",
+            "statut": 200,
+            "fichier": "content-path-2Famenagement-complet.95778241.json",
+            "octets": 1019
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fcategorie-de-produit%2Famenagement",
+            "statut": 200,
+            "fichier": "content-path-2Fcategorie-de-produit-2Famenagement.53e4bc14.json",
+            "octets": 16350
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fcontact",
+            "statut": 200,
+            "fichier": "content-path-2Fcontact.678ced22.json",
+            "octets": 2663
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Felectricite",
+            "statut": 200,
+            "fichier": "content-path-2Felectricite.2e6226dd.json",
+            "octets": 650
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Ffenetres",
+            "statut": 200,
+            "fichier": "content-path-2Ffenetres.31f0b96f.json",
+            "octets": 1047
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fisolation",
+            "statut": 200,
+            "fichier": "content-path-2Fisolation.d376faf2.json",
+            "octets": 736
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fland-rover-defender-110",
+            "statut": 200,
+            "fichier": "content-path-2Fland-rover-defender-110.ef2356e6.json",
+            "octets": 2863
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Flocation",
+            "statut": 200,
+            "fichier": "content-path-2Flocation.7dafb1f1.json",
+            "octets": 1562
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fmentions-legales",
+            "statut": 200,
+            "fichier": "content-path-2Fmentions-legales.c0e84b1b.json",
+            "octets": 4255
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits.49fbff82.json",
+            "octets": 13543
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Fauvants",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Fauvants.76cfa218.json",
+            "octets": 3063
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Fhard-top",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Fhard-top.d53d2805.json",
+            "octets": 2894
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Fmodular",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Fmodular.594b2ef6.json",
+            "octets": 9877
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Forion",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Forion.2db66a18.json",
+            "octets": 3193
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Ftente-de-toit-nait-up",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Ftente-de-toit-nait-up.3ef9ea2d.json",
+            "octets": 3112
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Ftiroirs-benne-pickup",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Ftiroirs-benne-pickup.65457852.json",
+            "octets": 3008
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fproduits%2Ftoit-relevable",
+            "statut": 200,
+            "fichier": "content-path-2Fproduits-2Ftoit-relevable.6b67e453.json",
+            "octets": 3070
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fqui-sommes-nous",
+            "statut": 200,
+            "fichier": "content-path-2Fqui-sommes-nous.37b2c676.json",
+            "octets": 11176
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Frealisations",
+            "statut": 200,
+            "fichier": "content-path-2Frealisations.c813d2bb.json",
+            "octets": 21044
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Frenault-trafic-1-pierre-croce",
+            "statut": 200,
+            "fichier": "content-path-2Frenault-trafic-1-pierre-croce.aed2f59e.json",
+            "octets": 5927
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fsur-mesure",
+            "statut": 200,
+            "fichier": "content-path-2Fsur-mesure.cf18272f.json",
+            "octets": 1749
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Ftoit-relevable",
+            "statut": 200,
+            "fichier": "content-path-2Ftoit-relevable.0fb917b4.json",
+            "octets": 996
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fvente",
+            "statut": 200,
+            "fichier": "content-path-2Fvente.e617a70e.json",
+            "octets": 1481
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-modular",
+            "statut": 200,
+            "fichier": "content-path-2Fvolkswagen-t5-modular.9181179d.json",
+            "octets": 6451
+        },
+        {
+            "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-orion-3",
+            "statut": 200,
+            "fichier": "content-path-2Fvolkswagen-t5-orion-3.344e6c7d.json",
+            "octets": 2895
+        },
+        {
+            "url": "/wp-json/dahut/v1/routes",
+            "statut": 200,
+            "fichier": "routes.0d335fe8.json",
+            "octets": 2471
+        }
+    ]
+}

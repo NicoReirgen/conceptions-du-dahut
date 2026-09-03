@@ -12,6 +12,12 @@
 #
 #   npm run publier
 #
+# Avec `--instantane`, la génération repart de la copie de l'API enregistrée
+# dans `wordpress-instantane/` au lieu d'interroger WordPress : de quoi publier
+# une correction qui ne touche que le code sans démarrer Local.
+#
+#   npm run publier -- --instantane
+#
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -27,8 +33,13 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-echo "→ Construction sous $BASE"
-NUXT_APP_BASE_URL="$BASE" npm run generate
+if [ "${1:-}" = "--instantane" ]; then
+    echo "→ Construction sous $BASE, depuis l'instantané de WordPress"
+    NUXT_APP_BASE_URL="$BASE" npm run generate:instantane
+else
+    echo "→ Construction sous $BASE"
+    NUXT_APP_BASE_URL="$BASE" npm run generate
+fi
 
 echo "→ Préparation de la branche $BRANCHE"
 git worktree remove --force "$COPIE" 2>/dev/null || true

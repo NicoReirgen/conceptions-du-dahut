@@ -28,6 +28,32 @@ plus tard.
 Le script refuse de publier tant que des modifications ne sont pas commitées :
 une mise en ligne qui ne correspond à aucun commit rend l'historique inutile.
 
+### Publier sans WordPress
+
+Une correction qui ne touche que le code — un favicon, une feuille de style, un
+composant — n'a pas besoin du contenu : elle a besoin de la *même* génération.
+D'où l'instantané.
+
+```bash
+npm run instantane            # une fois, WordPress démarré
+npm run publier -- --instantane   # ensuite, autant de fois qu'on veut
+```
+
+`instantane` intercale un mandataire entre le build et WordPress et note chaque
+réponse dans `wordpress-instantane/`. Ce qui est enregistré est exactement ce
+que le build demande — pas une liste de points d'API tenue à la main, qui se
+démoderait en silence. `--instantane` sert ensuite cette copie à la place de
+WordPress, et lance la génération habituelle, contrôles compris.
+
+Une requête absente de l'instantané **fait échouer** la génération, en la
+nommant : cela veut dire que le contenu a changé, donc qu'il faut une vraie
+capture. Le mode dégradé ne peut donc pas publier une page qui n'existe plus,
+ni oublier une page nouvelle.
+
+L'instantané est versionné, et c'est délibéré : il fait du dépôt une copie
+complète du site, contenu compris, là où la base Local en est aujourd'hui
+l'unique exemplaire.
+
 ### Le sous-chemin
 
 GitHub Pages sert un dépôt projet sous `/conceptions-du-dahut/`. Nuxt réécrit

@@ -79,25 +79,26 @@ supprimerait.
 | produits | A | 0,04 g | 93 % |
 | contact | A | 0,03 g | 96 % |
 
-**EcoIndex : B, B, A.**
+**EcoIndex : B sur les quatre pages.** Mesuré le 4 septembre 2026, en
+1920×1080, page entièrement déroulée.
 
 | page | note | score | poids | requêtes | nœuds DOM |
 |---|---|---|---|---|---|
-| accueil | B | 76 | 582 Ko | 41 | 287 |
-| qui-sommes-nous | B | 78 | 889 Ko | 36 | 227 |
-| contact | A | 81 | 276 Ko | 28 | 256 |
+| accueil | B | 75 | 586 Ko | 45 | 296 |
+| qui-sommes-nous | B | 77 | 893 Ko | 39 | 236 |
+| contact | B | 80 | 279 Ko | 31 | 265 |
+| produits | B | 80 | 395 Ko | 40 | 221 |
 
-Ces trois mesures officielles datent de la campagne qui a suivi le sprite des
-partenaires, avant le favicon, le lien d'évitement et le sitemap. **EcoIndex
-n'accepte que dix mesures par jour et par domaine**, quota épuisé par les
-itérations de la journée : la campagne suivante devra attendre le lendemain.
+**Un point de moins que la veille sur chaque page**, et contact repasse de A à
+B. La cause a été cherchée avant d'être supposée : ce ne sont ni les trois
+déclarations de favicon — aucun navigateur sans onglet ne les demande, vérifié —
+ni le lien d'évitement, qui ne coûte que deux nœuds. C'est **la mise à jour de
+la chaîne de construction** : Vite 8 découpe le JavaScript autrement, et la
+page d'accueil charge seize fichiers là où elle en chargeait douze.
 
-En attendant, les mêmes grandeurs mesurées ici — navigateur en 1920×1080, page
-entièrement déroulée — et passées au simulateur officiel donnent 70, 75 et 80.
-Ces valeurs ne se comparent pas aux précédentes : ma façon de compter les nœuds
-et les octets n'est pas la leur — sur une même page, mon relevé donne 371 nœuds
-là où leur mesure en comptait 287. Seules les mesures officielles font foi ;
-celles-ci servent à voir bouger l'aiguille entre deux campagnes.
+Quatre requêtes contre dix-huit vulnérabilités dont quatre critiques : le
+change reste bon. Et le levier qui les récupérerait — précharger les pages liées
+au survol plutôt qu'à la vue — en épargnerait dix-sept, soit quatre fois plus.
 
 ### Le chemin depuis la première mesure
 

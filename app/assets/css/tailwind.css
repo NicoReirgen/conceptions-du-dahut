@@ -670,8 +670,14 @@ body {
     @media (prefers-reduced-motion: reduce) {
         .animate {
             opacity: 1;
-            scale: 1;
             transform: none;
+
+            /*
+               `none`, et non `1` : le minificateur prend `scale: 1` pour la
+               valeur initiale et le supprime, alors que la règle de base pose
+               `scale: .99` — qui survivrait donc à la coupure.
+            */
+            scale: none;
 
             animation: none;
         }

@@ -121,13 +121,21 @@ test.describe('mouvement réduit', () => {
     test('le contenu reste visible, sans animation', async ({ page }) => {
         await avecMouvementReduit(page, '/qui-sommes-nous')
 
-        const masques = await page.evaluate(() =>
+        /*
+           On vérifie l'opacité, mais aussi l'échelle : le minificateur avait
+           supprimé un `scale: 1` en le croyant redondant, laissant le contenu
+           figé à 99 % de sa taille.
+        */
+        const restes = await page.evaluate(() =>
             [...document.querySelectorAll('.animate')]
-                .filter((element) => Number(getComputedStyle(element).opacity) < 1)
-                .map((element) => element.getAttribute('class').slice(0, 40))
+                .filter((element) => {
+                    const style = getComputedStyle(element)
+                    return Number(style.opacity) < 1 || !['none', '1'].includes(style.scale)
+                })
+                .map((element) => `${element.getAttribute('class').slice(0, 30)} — ${getComputedStyle(element).opacity} / ${getComputedStyle(element).scale}`)
         )
 
-        expect(masques).toEqual([])
+        expect(restes).toEqual([])
     })
 
     test('la bande des partenaires ne défile plus', async ({ page }) => {

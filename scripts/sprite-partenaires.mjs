@@ -36,6 +36,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
+import { demanderAWordPress } from './wordpress-injoignable.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const LOGOS = path.join(ROOT, 'app/assets/partenaires')
@@ -52,13 +53,7 @@ const HAUTEUR = 300
 const ECART = 120
 
 async function main() {
-    const reponse = await fetch(`${WP_BASE}/wp-json/dahut/v1/bootstrap`)
-
-    if (!reponse.ok) {
-        throw new Error(`WordPress a répondu ${reponse.status} — est-il démarré ?`)
-    }
-
-    const { options } = await reponse.json()
+    const { options } = await demanderAWordPress(`${WP_BASE}/wp-json/dahut/v1/bootstrap`)
     const logos = options?.logos_des_partenaires || []
 
     if (!logos.length) {

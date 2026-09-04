@@ -1,4 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
+// @ts-expect-error — module de scripts, sans déclarations de types
+import { demanderAWordPress } from './scripts/wordpress-injoignable.mjs'
 
 // L'origine WordPress n'existe qu'au build : le site publié est statique et ne
 // contacte jamais WordPress. On la surcharge avec NUXT_PUBLIC_WP_BASE_URL.
@@ -20,23 +22,11 @@ const baseURL = process.env.NUXT_APP_BASE_URL || '/'
 async function fetchRoutes(): Promise<string[]> {
   const url = `${wpBaseUrl}/wp-json/dahut/v1/routes`
 
-  try {
-    const response = await fetch(url)
+  // Un build silencieusement amputé serait pire qu'un build qui échoue :
+  // `demanderAWordPress` lève, en expliquant pourquoi WordPress ne répond pas.
+  const { routes } = (await demanderAWordPress(url)) as { routes: { path: string }[] }
 
-    if (!response.ok) {
-      throw new Error(`${response.status}`)
-    }
-
-    const { routes } = (await response.json()) as { routes: { path: string }[] }
-
-    return routes.map((route) => route.path)
-  } catch (error) {
-    // Un build silencieusement amputé serait pire qu'un build qui échoue.
-    throw new Error(
-      `Impossible de récupérer les routes depuis ${url} (${(error as Error).message}). ` +
-        'WordPress est-il démarré et accessible ?'
-    )
-  }
+  return routes.map((route) => route.path)
 }
 
 // https://nuxt.com/docs/api/configuration/nuxt-config

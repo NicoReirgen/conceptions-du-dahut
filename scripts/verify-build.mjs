@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { readdir } from 'node:fs/promises'
 import { pagesHtml, referencesManquantes, rendreCompte } from './references-manquantes.mjs'
+import { demanderAWordPress } from './wordpress-injoignable.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUTPUT = path.join(ROOT, '.output/public')
@@ -79,8 +80,7 @@ async function main() {
         process.exit(1)
     }
 
-    const response = await fetch(`${WP_BASE}/wp-json/dahut/v1/routes`)
-    const { routes } = await response.json()
+    const { routes } = await demanderAWordPress(`${WP_BASE}/wp-json/dahut/v1/routes`)
 
     const declared = routes.map((route) => route.path)
     const missing = []
@@ -160,7 +160,7 @@ async function main() {
        composée au build. Un partenaire ajouté dans WordPress n'y apparaîtrait
        donc pas, et rien ne le signalerait : la bande resterait belle, et fausse.
     */
-    const { options } = await (await fetch(`${WP_BASE}/wp-json/dahut/v1/bootstrap`)).json()
+    const { options } = await demanderAWordPress(`${WP_BASE}/wp-json/dahut/v1/bootstrap`)
     const declares = (options?.logos_des_partenaires || []).map(
         (logo) => logo.alt || logo.title || ''
     )

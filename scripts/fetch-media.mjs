@@ -17,6 +17,7 @@ import { mkdir, writeFile, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
+import { demanderAWordPress } from './wordpress-injoignable.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUTPUT = path.join(ROOT, 'public/media')
@@ -33,15 +34,7 @@ const WIDTHS = [640, 1280, 1920]
 const RASTER = /\.(jpe?g|png)$/i
 
 /** Récupère du JSON en signalant clairement une API injoignable. */
-async function json(url) {
-    const response = await fetch(url)
-
-    if (!response.ok) {
-        throw new Error(`${url} → ${response.status}`)
-    }
-
-    return response.json()
-}
+const json = (url) => demanderAWordPress(url)
 
 /**
  * Parcourt une structure et collecte tous les chemins `src` de médias.

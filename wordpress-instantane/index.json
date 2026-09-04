@@ -1,5 +1,5 @@
 {
-    "pris": "2026-09-04T01:53:42.998Z",
+    "pris": "2026-09-04T02:02:11.365Z",
     "origine": "http://les-conceptions-du-dahut.withni.local",
     "requetes": [
         {
@@ -78,7 +78,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fford-ranger-equipements",
             "statut": 200,
             "fichier": "content-path-2Fford-ranger-equipements.2bceac03.json",
-            "octets": 17053
+            "octets": 17046
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fisolation",
@@ -240,13 +240,13 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t4-bloc-amovible",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t4-bloc-amovible.d8e39d01.json",
-            "octets": 18941
+            "octets": 18934
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-modular",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t5-modular.9181179d.json",
-            "octets": 15208
+            "octets": 15201
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-orion-3",

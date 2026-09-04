@@ -64,28 +64,27 @@
                     Une paire sur deux est renversée quand elles se suivent :
                     le format vertical passe à gauche et l'horizontal à droite.
                     Deux paires identiques d'affilée feraient une colonne, la
-                    grande image toujours du même côté ; le renversement rend
-                    l'alternance que le rythme ne peut plus assurer seul.
+                    grande image toujours du même côté.
+
+                    Le renversement est une affaire de mise en page, pas de
+                    contenu : les images gardent leur ordre dans le document —
+                    donc à la lecture au clavier et au lecteur d'écran — et
+                    `order-first` ne fait que les afficher dans l'autre sens.
+
+                    D'où l'enveloppe : sans elle, `order` s'appliquerait à toute
+                    la grille de la fiche et renverrait les images verticales à
+                    la première ligne, toutes ensemble. Elle borne le
+                    renversement à la paire.
                 -->
-                <template v-else-if="item.layout === 'deux_images' && item.miroir">
-                    <div class="col-span-5">
-                        <AppImage :media="item.deuxieme_image" class="w-full aspect-2/3 object-cover" />
-                    </div>
-
-                    <div class="col-span-6 col-end-13">
-                        <AppImage :media="item.premiere_image" class="w-full aspect-3/2 object-cover" />
-                    </div>
-                </template>
-
-                <template v-else-if="item.layout === 'deux_images'">
-                    <div class="col-span-6">
+                <div v-else-if="item.layout === 'deux_images'" class="col-span-full grid grid-cols-12 gap-x-5 items-end">
+                    <div :class="item.miroir ? 'col-span-6 col-end-13' : 'col-span-6'">
                         <AppImage :media="item.premiere_image" class="w-full aspect-3/2 object-cover" />
                     </div>
 
-                    <div class="col-span-5 col-end-13">
+                    <div :class="item.miroir ? 'col-span-5 order-first' : 'col-span-5 col-end-13'">
                         <AppImage :media="item.deuxieme_image" class="w-full aspect-2/3 object-cover" />
                     </div>
-                </template>
+                </div>
             </template>
         </section>
 

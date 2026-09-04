@@ -240,6 +240,29 @@ async function main() {
         process.exit(1)
     }
 
+    // --- Aucune adresse de machine dans la sortie
+    /*
+       Le build grave l'origine WordPress dans sa configuration publique. Celle
+       du serveur de rejeu — `127.0.0.1` — s'y est retrouvée le 4 septembre
+       2026 : les pages publiées désignaient une adresse locale, chez le
+       visiteur. Le mode rejeu la remet en place après coup ; ce contrôle
+       vérifie qu'il l'a fait.
+    */
+    const locales = new Set()
+
+    for (const page of pages) {
+        for (const [, adresse] of (await readFile(page, 'utf-8')).matchAll(
+            /(https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?)/g
+        )) {
+            locales.add(adresse)
+        }
+    }
+
+    if (locales.size) {
+        console.error(`ÉCHEC : la sortie désigne une adresse locale : ${[...locales].join(', ')}`)
+        process.exit(1)
+    }
+
     console.log('Toutes les routes déclarées ont été générées.')
 }
 

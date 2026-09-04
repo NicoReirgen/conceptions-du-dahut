@@ -128,6 +128,15 @@ test.describe('page d’erreur', () => {
         // mesure fait de même.
         expect(reponse.status()).toBe(404)
 
+        /*
+           404.html est la coquille de repli : Nuxt n'y exécute aucun
+           composant, et le titre comme la balise robots n'arrivent qu'à
+           l'hydratation. Sans cette attente, le test passait ou échouait selon
+           la charge de la machine — deux échecs intermittents avant qu'elle ne
+           soit posée.
+        */
+        await page.waitForLoadState('networkidle')
+
         await expect(page.locator('h1')).toHaveText('404')
         await expect(page).toHaveTitle(/^404 —/)
 

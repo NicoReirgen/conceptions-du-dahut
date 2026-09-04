@@ -124,7 +124,7 @@ async function rejeu() {
         process.exit(1)
     }
 
-    const { pris, requetes } = JSON.parse(
+    const { pris, requetes, origine } = JSON.parse(
         await readFile(path.join(INSTANTANE, 'index.json'), 'utf-8')
     )
 
@@ -149,7 +149,7 @@ async function rejeu() {
     const age = Math.round((Date.now() - new Date(pris).getTime()) / 86400000)
     console.log(`[instantané] pris le ${new Date(pris).toLocaleString('fr-FR')}${age > 0 ? ` — il y a ${age} jour(s)` : ''}\n`)
 
-    const code = await genererAvec(`http://127.0.0.1:${PORT}`)
+    const code = await genererAvec(`http://127.0.0.1:${PORT}`, origine)
 
     serveur.close()
 
@@ -165,12 +165,23 @@ async function rejeu() {
     process.exit(code)
 }
 
-/** Lance la génération habituelle, contrôles compris, contre l'origine donnée. */
-function genererAvec(origine) {
+/**
+ * Lance la génération habituelle, contrôles compris, contre l'origine donnée.
+ *
+ * `DAHUT_ORIGINE_REJEU` et `DAHUT_ORIGINE_REELLE` disent à
+ * `scripts/origine-publique.mjs` de remettre l'origine enregistrée dans la
+ * sortie : sans quoi les pages publiées porteraient l'adresse du serveur
+ * temporaire.
+ */
+function genererAvec(origine, reelle = null) {
     const enfant = spawn('npm', ['run', 'generate'], {
         cwd: ROOT,
         stdio: 'inherit',
-        env: { ...process.env, NUXT_PUBLIC_WP_BASE_URL: origine },
+        env: {
+            ...process.env,
+            NUXT_PUBLIC_WP_BASE_URL: origine,
+            ...(reelle ? { DAHUT_ORIGINE_REJEU: origine, DAHUT_ORIGINE_REELLE: reelle } : {}),
+        },
     })
 
     return new Promise((fini) => enfant.on('close', fini))

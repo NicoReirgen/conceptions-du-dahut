@@ -55,11 +55,27 @@ export const useContent = async (path) => {
         query: { path: target },
     })
 
+    /*
+       Dans le navigateur, une requête qui échoue ne veut pas dire « erreur
+       serveur » : le site publié est statique et complet, et il n'a pas de
+       serveur. Toutes les pages prégénérées portent leur contenu dans leur
+       charge utile ; si un chemin n'en a pas, c'est qu'il n'existe pas.
+
+       Sans cette distinction, une adresse inconnue affichait « 500 — une erreur
+       s'est produite côté serveur » après avoir tenté sept fois de joindre
+       l'origine WordPress, qui n'est joignable que sur la machine de
+       développement. Le visiteur voyait une panne là où il n'y a qu'une page
+       absente.
+
+       Au build, en revanche, un échec reste un échec : c'est WordPress qui
+       manque, et le mieux est de le dire.
+    */
     if (!data.value || error.value) {
+        const introuvable = error.value?.statusCode === 404 || import.meta.client
+
         throw createError({
-            statusCode: error.value?.statusCode === 404 ? 404 : 500,
-            statusMessage:
-                error.value?.statusCode === 404 ? 'Page introuvable' : 'Contenu indisponible',
+            statusCode: introuvable ? 404 : 500,
+            statusMessage: introuvable ? 'Page introuvable' : 'Contenu indisponible',
             fatal: true,
         })
     }

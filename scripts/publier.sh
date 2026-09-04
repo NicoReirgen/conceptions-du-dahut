@@ -33,6 +33,15 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+# Le 4 septembre 2026, une sortie construite sur un cache tiède a été publiée :
+# son 404.html désignait trois scripts que la même sortie ne contenait pas. Le
+# site répondait, mais toute adresse inconnue restait blanche — la coquille de
+# repli ne pouvait pas démarrer.
+#
+# Une publication est assez rare pour qu'on reparte d'une table nette.
+echo "→ Nettoyage des sorties et du cache de build"
+rm -rf .output .nuxt node_modules/.cache/nuxt
+
 if [ "${1:-}" = "--instantane" ]; then
     echo "→ Construction sous $BASE, depuis l'instantané de WordPress"
     NUXT_APP_BASE_URL="$BASE" npm run generate:instantane

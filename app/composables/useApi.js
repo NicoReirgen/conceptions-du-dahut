@@ -20,13 +20,37 @@ export const useApiBase = () => {
  * Données transverses : identité du site, menus, options globales, avis.
  * Partagées entre le layout et toutes les pages via une clé unique.
  */
+const BOOTSTRAP_VIDE = { site: {}, menus: {}, options: {}, avis: [] }
+
 export const useBootstrap = async () => {
     const base = useApiBase()
+    const nuxtApp = useNuxtApp()
+
+    /*
+       Comme pour le contenu : sur le site publié, ces données arrivent dans la
+       charge utile de la page. Si elles n'y sont pas — donc sur une adresse
+       inconnue, servie par la coquille de repli — les demander à WordPress ne
+       peut qu'échouer, son origine n'existant que sur la machine de
+       développement. Quatre requêtes partaient en pure perte à chaque 404.
+
+       Le pied de page et la navigation se contentent alors des valeurs vides
+       qu'ils savent déjà traiter : la page d'erreur n'en affiche aucune.
+    */
+    const enCache = nuxtApp.payload?.data?.['dahut-bootstrap'] ?? nuxtApp.static?.data?.['dahut-bootstrap']
+
+    if (import.meta.client && !enCache) {
+        return {
+            site: computed(() => BOOTSTRAP_VIDE.site),
+            menus: computed(() => BOOTSTRAP_VIDE.menus),
+            options: computed(() => BOOTSTRAP_VIDE.options),
+            avis: computed(() => BOOTSTRAP_VIDE.avis),
+        }
+    }
 
     const { data } = await useFetch(`${base}/bootstrap`, {
         key: 'dahut-bootstrap',
-        getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key] ?? nuxtApp.static.data[key],
-        default: () => ({ site: {}, menus: {}, options: {}, avis: [] }),
+        getCachedData: (key, app) => app.payload.data[key] ?? app.static.data[key],
+        default: () => BOOTSTRAP_VIDE,
     })
 
     return {

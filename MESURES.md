@@ -112,8 +112,8 @@ troisième série ne défilait jamais. Trois points par page.
 **Les treize logos sont ensuite devenus une seule image.**
 `scripts/sprite-partenaires.mjs` les compose au build, écarts compris : le
 sprite est la bande telle qu'elle s'affiche, que le pied de page pose deux fois
-pour boucler le défilement. Treize requêtes deviennent une, 93 Ko deviennent
-55 Ko en AVIF, cent quatre nœuds de DOM deviennent six. Huit points sur
+pour boucler le défilement. Treize requêtes deviennent une, et cent quatre nœuds
+de DOM deviennent six. Huit points sur
 l'accueil, sept sur qui-sommes-nous, six sur contact — qui passe en A.
 
 EcoIndex pèse trois choses, et le DOM le plus lourdement : soixante nœuds

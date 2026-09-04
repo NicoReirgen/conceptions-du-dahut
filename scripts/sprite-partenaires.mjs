@@ -15,6 +15,17 @@
  * positionnement. Le manifeste ne porte que ses dimensions et la liste des
  * partenaires, dont se compose le texte alternatif.
  *
+ * Les logos sont pris dans `app/assets/partenaires/`, et non dans la médiathèque
+ * WordPress : celle-ci les avait convertis en JPEG opaques plafonnés à 1280 px.
+ * Chaque logo y traînait un rectangle noir cuit dans l'image, invisible sur le
+ * fond noir du site — et qui l'aurait rattrapé au premier fond clair. Les
+ * fichiers versionnés ici sont les PNG d'origine du studio, en vraie
+ * transparence et jusqu'à 3000 px.
+ *
+ * WordPress reste la source de la *liste* et des noms : l'ordre du bandeau et
+ * les textes alternatifs viennent de lui, et `verify-build` échoue si les deux
+ * divergent.
+ *
  * Le sprite est écrit dans `public/assets/images/`, régénérable donc hors dépôt.
  * Le manifeste, lui, est versionné : le composant l'importe, et un dépôt fraî-
  * chement cloné doit pouvoir se construire avant que les assets ne soient prêts.
@@ -27,7 +38,7 @@ import path from 'node:path'
 import sharp from 'sharp'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
-const MEDIA = path.join(ROOT, 'public/media')
+const LOGOS = path.join(ROOT, 'app/assets/partenaires')
 const SORTIE = path.join(ROOT, 'public/assets/images')
 const MANIFESTE = path.join(ROOT, 'app/data/partenaires-sprite.json')
 
@@ -59,10 +70,15 @@ async function main() {
     let x = 0
 
     for (const logo of logos) {
-        const source = path.join(MEDIA, logo.src.replace(/^\/media\//, ''))
+        const source = path.join(LOGOS, path.basename(logo.src))
 
         if (!existsSync(source)) {
-            throw new Error(`Introuvable : ${source}. Lancer d'abord : npm run media`)
+            throw new Error(
+                `Logo absent : ${path.relative(ROOT, source)}\n` +
+                    `  « ${logo.alt || logo.title} » est déclaré dans WordPress, mais son fichier d'origine\n` +
+                    `  n'est pas dans le dépôt. L'ajouter là plutôt que de retomber sur la médiathèque,\n` +
+                    `  dont les copies sont opaques et plafonnées à 1280 px.`
+            )
         }
 
         // `fit: inside` conserve le rapport d'origine ; la largeur en découle.
@@ -99,8 +115,15 @@ async function main() {
     await mkdir(SORTIE, { recursive: true })
 
     const png = await canevas.png().toBuffer()
-    const webp = await sharp(png).webp({ quality: 82 }).toBuffer()
-    const avif = await sharp(png).avif({ quality: 60, effort: 5 }).toBuffer()
+    /*
+       Des marques blanches sur fond transparent : peu de dégradés, donc peu à
+       préserver. Descendre la qualité AVIF de 60 à 50 rend les trente kilo-
+       octets qu'avait coûtés le passage à la vraie transparence, sans
+       différence visible. Le WebP ne sert que de repli — les navigateurs qui
+       lisent l'AVIF ne le téléchargent jamais.
+    */
+    const webp = await sharp(png).webp({ quality: 78 }).toBuffer()
+    const avif = await sharp(png).avif({ quality: 50, effort: 6 }).toBuffer()
 
     await writeFile(path.join(SORTIE, 'partenaires.webp'), webp)
     await writeFile(path.join(SORTIE, 'partenaires.avif'), avif)

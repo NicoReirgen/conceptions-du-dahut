@@ -7,6 +7,9 @@
 #
 #   — les originaux du configurateur, 243 Mo : l'entreprise n'existe plus, ils
 #     ne peuvent pas être reproduits ;
+#   — la livraison du studio, si elle est encore là : elle contient les 881 Mo
+#     de photos de réalisations en pleine définition, dont il n'existe ailleurs
+#     que les copies compressées de WordPress ;
 #   — les médias de WordPress, 743 Mo : la source de tout ce que le site sert ;
 #   — la base WordPress : la seule copie modifiable du contenu, le site en ligne
 #     ayant disparu avec l'entreprise.
@@ -82,11 +85,19 @@ fi
 
 echo "  $(du -h "$TEMPORAIRE/base.sql" | cut -f1)"
 
-echo "→ Archivage — comptez quelques minutes pour un gigaoctet"
+STUDIO="$HOME/Downloads/DAHUT X FRED"
+
+echo "→ Archivage — comptez quelques minutes pour deux gigaoctets"
 tar -czf "$ARCHIVE" \
     -C "$TEMPORAIRE" base.sql \
     -C "$(pwd)" assets-source assets-source.sha256 wordpress-instantane \
-    -C "$SITE/wp-content" uploads
+    -C "$SITE/wp-content" uploads \
+    $([ -d "$STUDIO" ] && printf '%s' "-C $HOME/Downloads") \
+    $([ -d "$STUDIO" ] && printf '%s' "DAHUT X FRED")
+
+if [ ! -d "$STUDIO" ]; then
+    echo "  (la livraison du studio n'est plus dans Téléchargements : non archivée)"
+fi
 
 echo "→ Empreinte"
 shasum -a 256 "$ARCHIVE" > "$ARCHIVE.sha256"

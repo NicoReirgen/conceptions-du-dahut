@@ -7,7 +7,8 @@ Un front Nuxt 4 qui se construit à partir d'un WordPress headless, et qui n'en
 dépend plus une fois publié : le site livré est **entièrement statique**, sans
 serveur ni base de données. Il embarque un configurateur de véhicule dont
 l'aperçu se recompose à chaque choix, à partir de 185 images d'atelier
-déclinées en 927 fichiers servis.
+déclinées en 927 fichiers servis, et seize réalisations documentées en
+174 photographies.
 
 L'entreprise a cessé son activité. Le site est donc figé : les formulaires
 valident, attendent et confirment sans rien envoyer (mode vitrine), et le

@@ -165,6 +165,17 @@ et les six fiches produits restées vides.
 | médias WordPress publiés | 742 Mo | 24 Mo | ×31 |
 | **dossier publié** | **371 Mo** | **70 Mo** | **×5** |
 
+Le 4 septembre 2026, la publication des seize réalisations — 174 photos — a
+porté ce dossier à 154 Mo. Ce n'est pas une régression : c'est du contenu qui
+n'existait pas. Chaque photo est servie en AVIF, WebP et JPEG à trois largeurs ;
+le visiteur d'une fiche en télécharge moins d'un mégaoctet, le reste étant
+différé. Une fiche de dix-huit photos mesure 92 en performance, 100 partout
+ailleurs, décalage cumulé nul.
+
+La même opération a révélé que le collecteur de médias rapatriait aussi les six
+déclinaisons que WordPress fabrique par image, dont aucune n'est servie : plus
+de mille fichiers pour 174 photos. Corrigé — la sortie serait sinon à 240 Mo.
+
 Côté code : JavaScript livré ramené à 135 Ko compressés, `gsap` et `swiper`
 retirés des dépendances, HTML de l'accueil passé de 109 à 83 Ko.
 

@@ -63,7 +63,23 @@ function collectMedia(node, found = new Set()) {
         found.add(node.src)
     }
 
-    Object.values(node).forEach((value) => collectMedia(value, found))
+    /*
+       Les déclinaisons de WordPress — `sizes.medium`, `sizes.large`, et les
+       quatre autres — ne sont servies nulle part : le site ne lit que le `src`
+       principal, et fabrique ses propres variantes en AVIF et WebP. Les
+       rapatrier revenait à télécharger six fichiers par photo pour n'en
+       utiliser qu'un, puis à décliner les cinq autres à leur tour.
+
+       Sur les 174 photos des réalisations, cela faisait plus de mille fichiers
+       et 240 Mo de sortie. Le garde-fou est en aval : `verify-build` échoue si
+       une page réclame un fichier absent — si une taille WordPress venait à
+       être utilisée un jour, le build le dirait.
+    */
+    Object.entries(node).forEach(([cle, valeur]) => {
+        if (cle !== 'sizes') {
+            collectMedia(valeur, found)
+        }
+    })
 
     return found
 }

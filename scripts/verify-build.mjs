@@ -16,7 +16,7 @@ import { readFile, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { readdir } from 'node:fs/promises'
-import { referencesManquantes, rendreCompte } from './references-manquantes.mjs'
+import { pagesHtml, referencesManquantes, rendreCompte } from './references-manquantes.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUTPUT = path.join(ROOT, '.output/public')
@@ -71,23 +71,6 @@ async function generatedRoutes(dir = OUTPUT, prefix = '') {
     }
 
     return routes
-}
-
-/** Toutes les pages HTML écrites dans la sortie. */
-async function htmlFiles(dir = OUTPUT) {
-    const fichiers = []
-
-    for (const entry of await readdir(dir, { withFileTypes: true })) {
-        const full = path.join(dir, entry.name)
-
-        if (entry.isDirectory()) {
-            fichiers.push(...(await htmlFiles(full)))
-        } else if (entry.name.endsWith('.html')) {
-            fichiers.push(full)
-        }
-    }
-
-    return fichiers
 }
 
 async function main() {
@@ -203,7 +186,7 @@ async function main() {
     */
     const locales = new Set()
 
-    for (const page of pages) {
+    for (const page of await pagesHtml(OUTPUT)) {
         for (const [, adresse] of (await readFile(page, 'utf-8')).matchAll(
             /(https?:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?)/g
         )) {

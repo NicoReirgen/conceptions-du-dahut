@@ -60,6 +60,23 @@
                     <AppImage :media="item.image" class="w-full aspect-3/2 object-cover" />
                 </div>
 
+                <!--
+                    Une paire sur deux est renversée quand elles se suivent :
+                    le format vertical passe à gauche et l'horizontal à droite.
+                    Deux paires identiques d'affilée feraient une colonne, la
+                    grande image toujours du même côté ; le renversement rend
+                    l'alternance que le rythme ne peut plus assurer seul.
+                -->
+                <template v-else-if="item.layout === 'deux_images' && item.miroir">
+                    <div class="col-span-5">
+                        <AppImage :media="item.deuxieme_image" class="w-full aspect-2/3 object-cover" />
+                    </div>
+
+                    <div class="col-span-6 col-end-13">
+                        <AppImage :media="item.premiere_image" class="w-full aspect-3/2 object-cover" />
+                    </div>
+                </template>
+
                 <template v-else-if="item.layout === 'deux_images'">
                     <div class="col-span-6">
                         <AppImage :media="item.premiere_image" class="w-full aspect-3/2 object-cover" />
@@ -118,7 +135,29 @@ const props = defineProps({
 
 const acf = computed(() => props.content.acf || {})
 const carac = computed(() => acf.value.caracteristiques_du_projet || {})
-const grille = computed(() => acf.value.contenu_de_larticle || [])
+/*
+   Les blocs de la grille, chacun sachant s'il doit être renversé.
+
+   Le rang se compte à l'intérieur d'une série de paires consécutives : la
+   première garde la grande image à gauche, la deuxième la passe à droite. Une
+   image seule remet le compteur à zéro — une paire isolée n'a personne avec qui
+   alterner, elle garde donc l'orientation de référence de la maquette.
+*/
+const grille = computed(() => {
+    let rangDansLaSerie = 0
+
+    return (acf.value.contenu_de_larticle || []).map((bloc) => {
+        if (bloc.layout !== 'deux_images') {
+            rangDansLaSerie = 0
+            return bloc
+        }
+
+        const miroir = rangDansLaSerie % 2 === 1
+        rangDansLaSerie += 1
+
+        return { ...bloc, miroir }
+    })
+})
 const next = computed(() => props.content.next || null)
 
 const plainTitle = computed(() =>

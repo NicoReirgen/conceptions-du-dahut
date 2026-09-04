@@ -1,5 +1,5 @@
 {
-    "pris": "2026-09-04T02:11:39.634Z",
+    "pris": "2026-09-04T02:17:44.582Z",
     "origine": "http://les-conceptions-du-dahut.withni.local",
     "requetes": [
         {
@@ -60,7 +60,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fdacia-jogger-modular-v1",
             "statut": 200,
             "fichier": "content-path-2Fdacia-jogger-modular-v1.755c4312.json",
-            "octets": 18891
+            "octets": 18884
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Felectricite",
@@ -204,7 +204,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Frenault-trafic-1-pierre-croce",
             "statut": 200,
             "fichier": "content-path-2Frenault-trafic-1-pierre-croce.aed2f59e.json",
-            "octets": 20449
+            "octets": 20442
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fsur-mesure",
@@ -252,7 +252,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-orion-3",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t5-orion-3.344e6c7d.json",
-            "octets": 16885
+            "octets": 16878
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-talveg",
@@ -270,7 +270,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t61-orion-2",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t61-orion-2.1fd6a621.json",
-            "octets": 19389
+            "octets": 19382
         },
         {
             "url": "/wp-json/dahut/v1/routes",

@@ -50,9 +50,27 @@ export const useContent = async (path) => {
         return raw.startsWith('/') ? raw : `/${raw}`
     })
 
+    const cle = computed(() => `dahut-content:${target.value}`)
+    const nuxtApp = useNuxtApp()
+
+    /*
+       Le site publié est statique : chaque page prégénérée porte son contenu
+       dans sa charge utile, et le navigateur n'a jamais besoin d'appeler
+       WordPress — dont l'origine n'existe que sur la machine de développement.
+
+       Un chemin absent de la charge utile est donc un chemin qui n'existe pas.
+       Sans cette sortie, le navigateur lançait la requête quand même : elle
+       n'aboutissait jamais, et la page d'erreur ne s'affichait pas — mesuré en
+       ligne, toujours blanche après quarante-cinq secondes.
+    */
+    if (import.meta.client && !nuxtApp.payload?.data?.[cle.value] && !nuxtApp.static?.data?.[cle.value]) {
+        throw createError({ statusCode: 404, statusMessage: 'Page introuvable', fatal: true })
+    }
+
     const { data, error } = await useFetch(`${base}/content`, {
-        key: computed(() => `dahut-content:${target.value}`),
+        key: cle,
         query: { path: target },
+        getCachedData: (k, app) => app.payload.data[k] ?? app.static.data[k],
     })
 
     /*

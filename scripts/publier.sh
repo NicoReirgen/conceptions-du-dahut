@@ -61,8 +61,23 @@ fi
 
 # --delete : un fichier retiré du site doit disparaître de la branche.
 # Les variantes pré-compressées sont écartées, GitHub Pages compressant lui-même.
-rsync -a --delete --exclude='.git' --exclude='*.br' --exclude='*.gz' \
+#
+# --ignore-times : rsync juge d'ordinaire un fichier inchangé quand sa taille et
+#   sa date coïncident. Deux constructions successives produisent des pages de
+#   même taille — Nuxt n'y change qu'un identifiant de build — et une page a
+#   ainsi survécu à la copie : le 404.html publié désignait les scripts de la
+#   construction précédente, effacés par celle-ci. Copier les cent cinquante
+#   mégaoctets sans se poser de question prend deux secondes ; s'en poser une
+#   mauvaise a coûté deux publications blanches.
+rsync -a --ignore-times --delete --exclude='.git' --exclude='*.br' --exclude='*.gz' \
     .output/public/ "$COPIE"/
+
+# Quoi qu'il arrive en amont, ce qui part en ligne doit se tenir : chaque fichier
+# désigné par une page doit exister dans le même envoi. La vérification porte sur
+# la copie, pas sur la sortie — c'est la copie qui est publiée, et les deux ont
+# divergé.
+echo "→ Vérification de la copie à publier"
+NUXT_APP_BASE_URL="$BASE" node scripts/references-manquantes.mjs "$COPIE"
 
 # Sans ce fichier, Jekyll écarte tout dossier commençant par un tiret bas :
 # _nuxt/ et _payload.json, soit l'intégralité du JavaScript du site.

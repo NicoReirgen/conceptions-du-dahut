@@ -16,6 +16,7 @@ import { readFile, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { readdir } from 'node:fs/promises'
+import { referencesManquantes, rendreCompte } from './references-manquantes.mjs'
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUTPUT = path.join(ROOT, '.output/public')
@@ -150,64 +151,16 @@ async function main() {
         console.warn('')
     }
 
-    // --- Ressources référencées : images, polices, vidéos, feuilles de style
+    // --- Ressources référencées : images, polices, vidéos, scripts, feuilles de style
     /*
-       Une variante d'image absente ne se voit pas à la lecture du code : le
-       navigateur retient la <source> qui lui convient, et une <source> en échec
-       ne retombe pas sur le <img>. L'image disparaît, sans rien dans la console
-       du build. Ce contrôle a révélé 22 variantes proposées mais jamais
-       produites — un filtre de largeurs qui ne répétait pas la règle de
-       `fetch-media.mjs`.
+       Le même contrôle sert deux fois : ici sur la sortie, et à la publication
+       sur la copie qui part en ligne. Les deux ont divergé une fois, et c'est la
+       copie qui est servie.
 
        Il échoue aussi, volontairement, quand les assets n'ont pas été préparés :
        `npm run assets` avant `npm run generate`.
     */
-    const pages = await htmlFiles()
-    const absentes = new Map()
-
-    for (const page of pages) {
-        const html = await readFile(page, 'utf-8')
-        const references = new Set()
-
-        for (const [, url] of html.matchAll(/(?:src|href|content)="(\/[^"]+)"/g)) {
-            references.add(url)
-        }
-        for (const [, liste] of html.matchAll(/srcset="([^"]+)"/g)) {
-            for (const candidat of liste.split(',')) {
-                const url = candidat.trim().split(' ')[0]
-                if (url.startsWith('/')) {
-                    references.add(url)
-                }
-            }
-        }
-
-        for (const reference of references) {
-            const url = reference.split('?')[0].split('#')[0]
-
-            // Sans extension, c'est une page : déjà traitée au-dessus.
-            if (!/\.[a-z0-9]{2,5}$/i.test(url)) {
-                continue
-            }
-
-            const fichier = path.join(OUTPUT, sansBase(url).replace(/^\//, ''))
-
-            if (!existsSync(fichier)) {
-                if (!absentes.has(url)) {
-                    absentes.set(url, new Set())
-                }
-                absentes.get(url).add(path.relative(OUTPUT, page))
-            }
-        }
-    }
-
-    if (absentes.size) {
-        console.error(`ÉCHEC : ${absentes.size} fichier(s) référencé(s) mais absent(s) de la sortie :`)
-        for (const [url, sources] of [...absentes].slice(0, 10)) {
-            console.error(`  ${url}  ←  ${[...sources].slice(0, 3).join(', ')}`)
-        }
-        if (absentes.size > 10) {
-            console.error(`  … et ${absentes.size - 10} autre(s)`)
-        }
+    if (!rendreCompte(await referencesManquantes(OUTPUT, BASE), OUTPUT)) {
         console.error('\nLes assets ont-ils été préparés ? npm run assets')
         process.exit(1)
     }

@@ -1,5 +1,5 @@
 {
-    "pris": "2026-09-04T01:46:36.285Z",
+    "pris": "2026-09-04T01:53:42.998Z",
     "origine": "http://les-conceptions-du-dahut.withni.local",
     "requetes": [
         {
@@ -60,7 +60,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fdacia-jogger-modular-v1",
             "statut": 200,
             "fichier": "content-path-2Fdacia-jogger-modular-v1.755c4312.json",
-            "octets": 18884
+            "octets": 18891
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Felectricite",
@@ -78,7 +78,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fford-ranger-equipements",
             "statut": 200,
             "fichier": "content-path-2Fford-ranger-equipements.2bceac03.json",
-            "octets": 17067
+            "octets": 17053
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fisolation",
@@ -90,19 +90,19 @@
             "url": "/wp-json/dahut/v1/content?path=%2Flada-niva-module-compact",
             "statut": 200,
             "fichier": "content-path-2Flada-niva-module-compact.e4d40766.json",
-            "octets": 11211
+            "octets": 11187
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fland-rover-defender-110",
             "statut": 200,
             "fichier": "content-path-2Fland-rover-defender-110.ef2356e6.json",
-            "octets": 21346
+            "octets": 21339
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fland-rover-defender-110-expedition",
             "statut": 200,
             "fichier": "content-path-2Fland-rover-defender-110-expedition.c45d6842.json",
-            "octets": 25824
+            "octets": 25803
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Flocation",
@@ -120,7 +120,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fnissan-navara-cuisine-coulissante",
             "statut": 200,
             "fichier": "content-path-2Fnissan-navara-cuisine-coulissante.c93da82d.json",
-            "octets": 18424
+            "octets": 18403
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fproduits",
@@ -204,7 +204,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Frenault-trafic-1-pierre-croce",
             "statut": 200,
             "fichier": "content-path-2Frenault-trafic-1-pierre-croce.aed2f59e.json",
-            "octets": 20456
+            "octets": 20449
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fsur-mesure",
@@ -222,7 +222,7 @@
             "url": "/wp-json/dahut/v1/content?path=%2Futilitaire-professionnel-ifs-constructions",
             "statut": 200,
             "fichier": "content-path-2Futilitaire-professionnel-ifs-constructions.f83a7dfc.json",
-            "octets": 11556
+            "octets": 11539
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvente",
@@ -234,13 +234,13 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-lt-albert",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-lt-albert.8c42486e.json",
-            "octets": 13686
+            "octets": 13672
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t4-bloc-amovible",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t4-bloc-amovible.d8e39d01.json",
-            "octets": 18948
+            "octets": 18941
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-modular",
@@ -252,25 +252,25 @@
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-orion-3",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t5-orion-3.344e6c7d.json",
-            "octets": 16878
+            "octets": 16885
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t5-talveg",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t5-talveg.9bea9e53.json",
-            "octets": 8906
+            "octets": 8899
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t6-orion-0",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t6-orion-0.b20c9589.json",
-            "octets": 24230
+            "octets": 24195
         },
         {
             "url": "/wp-json/dahut/v1/content?path=%2Fvolkswagen-t61-orion-2",
             "statut": 200,
             "fichier": "content-path-2Fvolkswagen-t61-orion-2.1fd6a621.json",
-            "octets": 19375
+            "octets": 19389
         },
         {
             "url": "/wp-json/dahut/v1/routes",
